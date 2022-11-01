@@ -5,16 +5,20 @@ import (
 	"practice_ctl/pkg/util/blogs/typed/core"
 )
 
-// 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
 // 模仿k8s 的clientset
-type Clientset struct {
+// 调用方式：clientSet.Core().Version().Get()
+
+// ClientSet 客户端
+type ClientSet struct {
 	*rest.RESTClient
 }
 
-func (cs *Clientset) Core() core.CoreInterface {
+func (cs *ClientSet) Core() core.CoreInterface {
 	return core.New(cs.RESTClient)
 }
-func NewForConfig(c *rest.Config) *Clientset {
+
+// NewForConfig 读配置文件
+func NewForConfig(c *rest.Config) *ClientSet {
 	rc := rest.NewRESTClient(c)
-	return &Clientset{RESTClient: rc}
+	return &ClientSet{RESTClient: rc}
 }

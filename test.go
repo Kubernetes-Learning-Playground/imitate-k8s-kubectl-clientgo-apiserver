@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"k8sblog/pkg/util/blogs"
-	"k8sblog/pkg/util/blogs/rest"
 	"log"
+	"practice_ctl/pkg/util/blogs"
+	"practice_ctl/pkg/util/blogs/rest"
 	"time"
 )
 
-// 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
+
 func main() {
+
 	config := &rest.Config{
 		Host:    "http://localhost:8080",
 		Timeout: time.Second,
@@ -24,5 +25,3 @@ func main() {
 	fmt.Println(v)
 
 }
-
-// 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334

@@ -7,17 +7,18 @@ import (
 	"log"
 )
 
-// RunCmd 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
+// RunCmd
 func RunCmd() {
 	cmd := &cobra.Command{
 		Use:          "blogctl",
-		Short:        "程序员在囧途个人博客",
+		Short:        "模仿kubectl",
 		Example:      "blogctl",
 		SilenceUsage: true,
 	}
 
 	cfg := config.LoadConfigFile()
 	fmt.Println(cfg)
+
 	//加入子命令
 	cmd.AddCommand(versionCmd)
 	err := cmd.Execute()

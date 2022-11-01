@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// MustLoadFile 如果读不到file，就panic
 func MustLoadFile(path string) []byte {
 	b, err := LoadFile(path)
 	if err != nil {
@@ -13,7 +14,7 @@ func MustLoadFile(path string) []byte {
 	return b
 }
 
-// 加载指定目录的文件, 全部取出内容
+// LoadFile 加载指定目录的文件, 全部取出内容
 func LoadFile(path string) ([]byte, error) {
 	f, err := os.Open(path)
 	if err != nil {

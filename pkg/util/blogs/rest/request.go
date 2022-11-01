@@ -23,6 +23,8 @@ func NewRequest(c *RESTClient) *Request {
 //func (r *Request) Do() (*resty.Response, error) {
 //	return r.c.R().Execute(r.verb, r.path)
 //}
+
+// Do 需要对底层库进行封装，不要暴露
 func (r *Request) Do() Result {
 	var ret Result
 	rsp, err := r.c.R().Execute(r.verb, r.path)

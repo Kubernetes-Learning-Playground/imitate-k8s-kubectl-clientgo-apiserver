@@ -4,12 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"gopkg.in/yaml.v2"
-	"k8sblog/pkg/util/helpers"
 	"log"
 	"os"
+	"practice_ctl/pkg/util/helpers"
 )
 
-// BlogCtlConfig 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
+// BlogCtlConfig
 type BlogCtlConfig struct {
 	Server string `yaml:"server"`
 }
@@ -24,6 +24,7 @@ func LoadConfigFile() *BlogCtlConfig {
 	if _, err := os.Stat(configFile); errors.Is(err, os.ErrNotExist) {
 		log.Fatalln("配置文件没找到")
 	}
+	// 接配置文件
 	cfg := &BlogCtlConfig{}
 	err = yaml.Unmarshal(helpers.MustLoadFile(configFile), cfg)
 	if err != nil {

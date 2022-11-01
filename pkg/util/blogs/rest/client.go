@@ -10,22 +10,24 @@ type Interface interface {
 	Post() *Request
 }
 
-var _ Interface = &RESTClient{}
+var _ Interface = &RESTClient{}	// 查看是否实现此接口
 
-// 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
+// RESTClient 底层对象
 type RESTClient struct {
 	*resty.Client
 }
 
+// Get 方法
 func (R *RESTClient) Get() *Request {
 	return NewRequest(R).Verb(http.MethodGet)
 }
 
+// Post 方法
 func (R *RESTClient) Post() *Request {
 	return NewRequest(R).Verb(http.MethodPost)
 }
 
-// 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
+// NewRESTClient 构建方法
 func NewRESTClient(config *Config) *RESTClient {
 
 	rc := resty.New()
@@ -36,4 +38,4 @@ func NewRESTClient(config *Config) *RESTClient {
 	return &RESTClient{Client: rc}
 }
 
-// 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
+

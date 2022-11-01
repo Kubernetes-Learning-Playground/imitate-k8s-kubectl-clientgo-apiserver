@@ -17,11 +17,11 @@ func newVersion(c rest.Interface) VersionInterface {
 type VersionInterface interface {
 	Get() (ver *unverstioned.Version, err error)
 }
+
 type version struct {
 	client rest.Interface
 }
 
-// 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
 func (v *version) Get() (ver *unverstioned.Version, err error) {
 	//TODO implement me
 	ver = &unverstioned.Version{}
@@ -33,5 +33,4 @@ func (v *version) Get() (ver *unverstioned.Version, err error) {
 	return
 }
 
-// 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
 var _ VersionInterface = &version{}
