@@ -54,3 +54,48 @@
 
 
 ### kubectl 风格命令行封装
+
+
+
+### 项目目录
+
+```bigquery
+├── README.md
+├── cmd # 编译main文件
+├── pkg
+│   ├── apis # 用来存放资源对象
+│   │   └── core
+│   │       ├── unverstioned
+│   │       │   └── version.go
+│   │       └── v1
+│   │           ├── apple.go
+│   │           └── version.go
+│   ├── storeapiserver
+│   │   ├── auth
+│   │   ├── configs
+│   │   └── controllers # api server控制器
+│   │       ├── apple.go
+│   │       └── version.go
+│   ├── storectl
+│   │   ├── cmd 
+│   │   │   ├── base.go
+│   │   │   └── versionCmd.go
+│   │   └── config # 客户端配置文件
+│   │       └── config.go
+│   └── util
+│       ├── helpers
+│       │   └── filehelper.go
+│       └── stores
+│           ├── clientset.go
+│           ├── rest # RESTClient http库封装
+│           │   ├── client.go
+│           │   ├── config.go
+│           │   ├── request.go
+│           │   └── result.go
+│           └── typed 
+│               └── core # core资源对象的 client 封装
+│                   ├── apple.go
+│                   ├── core_client.go
+│                   └── version.go
+└── test.go
+```
