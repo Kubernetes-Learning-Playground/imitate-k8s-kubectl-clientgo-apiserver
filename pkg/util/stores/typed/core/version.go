@@ -2,7 +2,7 @@ package core
 
 import (
 	"practice_ctl/pkg/apis/core/unverstioned"
-	"practice_ctl/pkg/util/blogs/rest"
+	"practice_ctl/pkg/util/stores/rest"
 )
 
 type VersionGetter interface {
@@ -16,6 +16,7 @@ func newVersion(c rest.Interface) VersionInterface {
 // 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
 type VersionInterface interface {
 	Get() (ver *unverstioned.Version, err error)
+	Post() (ver *unverstioned.Version, err error)
 }
 
 type version struct {
@@ -30,6 +31,14 @@ func (v *version) Get() (ver *unverstioned.Version, err error) {
 		Path("/version").
 		Do().
 		Into(ver)
+	return
+}
+
+func (v *version) Post() (ver *unverstioned.Version, err error) {
+	ver = &unverstioned.Version{}
+	err = v.client.
+		Post().Path("/version").
+		Do().Into(ver)
 	return
 }
 

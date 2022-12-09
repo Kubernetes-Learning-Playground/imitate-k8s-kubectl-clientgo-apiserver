@@ -1,8 +1,8 @@
-package blogs
+package stores
 
 import (
-	"practice_ctl/pkg/util/blogs/rest"
-	"practice_ctl/pkg/util/blogs/typed/core"
+	"practice_ctl/pkg/util/stores/rest"
+	"practice_ctl/pkg/util/stores/typed/core"
 )
 
 // 模仿k8s 的clientset

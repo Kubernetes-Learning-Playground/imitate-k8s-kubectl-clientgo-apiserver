@@ -23,9 +23,9 @@ func NewClientVersionInfo() *ClientVersionInfo {
 }
 
 var versionCmd = &cobra.Command{
-	Use:          "version", // 这意味着 可以  xxxx version 运行
+	Use:          "version", // 以  xxxx version 运行
 	Short:        "v",
-	Example:      "blogctl version",
+	Example:      "storectl version",
 	SilenceUsage: true,
 	RunE: func(c *cobra.Command, args []string) error {
 		fmt.Printf("Client Version:%s\n", NewClientVersionInfo())

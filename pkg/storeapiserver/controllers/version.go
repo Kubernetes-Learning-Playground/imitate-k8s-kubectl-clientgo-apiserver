@@ -3,11 +3,11 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/shenyisyn/goft-gin/goft"
-	"practice_ctl/pkg/apis/core/unverstioned"
+	"practice_ctl/pkg/apis/core/v1"
 )
 
-func NewServerVersionInfo() *unverstioned.Version {
-	return &unverstioned.Version{
+func NewServerVersionInfo() *v1.Version {
+	return &v1.Version{
 		Version: "0.1.1",
 		GoVersion: "go1.18",
 	}

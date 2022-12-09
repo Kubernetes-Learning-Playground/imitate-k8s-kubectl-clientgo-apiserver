@@ -14,7 +14,7 @@ type BlogCtlConfig struct {
 	Server string `yaml:"server"`
 }
 
-// LoadConfigFile 读取配置文件,模仿kubectl ，默认在~/.blog/config
+// LoadConfigFile 读取配置文件,模仿kubectl，默认在~/.blog/config
 func LoadConfigFile() *BlogCtlConfig {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -31,5 +31,4 @@ func LoadConfigFile() *BlogCtlConfig {
 		log.Fatalln(err)
 	}
 	return cfg
-
 }

@@ -3,25 +3,67 @@ package main
 import (
 	"fmt"
 	"log"
-	"practice_ctl/pkg/util/blogs"
-	"practice_ctl/pkg/util/blogs/rest"
+	v1 "practice_ctl/pkg/apis/core/v1"
+
+	//v1 "practice_ctl/pkg/apis/core/v1"
+
+	//"log"
+
+	"practice_ctl/pkg/util/stores"
+	"practice_ctl/pkg/util/stores/rest"
 	"time"
 )
 
 
 func main() {
-
+	// 配置文件
 	config := &rest.Config{
-		Host:    "http://localhost:8080",
+		Host:    fmt.Sprintf("http://localhost:8080"),
 		Timeout: time.Second,
 	}
-	//v := &unverstioned.Version{}
-	clientSet := blogs.NewForConfig(config)
-	v, err := clientSet.Core().Version().Get()
+	clientSet := stores.NewForConfig(config)
+
+	// 创建操作
+	a := &v1.Apple{
+		Name: "apple1",
+		Size: "apple1",
+		Color: "apple1",
+		Place: "apple1",
+		Price: "apple1",
+	}
+	c, err := clientSet.Core().Apple().Create(a)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("name:", c.Name,  "size:", c.Size, "color:", c.Color, "place:", c.Place, "price:", c.Price)
+
+	apple1, err := clientSet.Core().Apple().Get(c.Name)
 	if err != nil {
 		log.Fatalln(err)
 	}
+	fmt.Println("name: ", apple1.Name)
 
-	fmt.Println(v)
+	aaa := &v1.Apple{
+		Name: "apple1",
+		Size: "apple1dddd",
+		Color: "apple1ccc",
+		Place: "apple1ccc",
+		Price: "apple1ccc",
+	}
+
+	appleupdate, err := clientSet.Core().Apple().Update(aaa)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("name: ", appleupdate.Name,  "size: ", appleupdate.Size, "color: ", appleupdate.Color, "place: ", appleupdate.Place, "price: ", appleupdate.Price)
+
+	appleList, err := clientSet.Core().Apple().List()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	for _, apple := range appleList.Item {
+		fmt.Println(apple.Name)
+	}
+
 
 }

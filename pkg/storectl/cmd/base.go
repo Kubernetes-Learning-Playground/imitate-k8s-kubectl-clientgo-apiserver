@@ -3,16 +3,16 @@ package cmds
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"practice_ctl/pkg/blogctl/config"
+	"practice_ctl/pkg/storectl/config"
 	"log"
 )
 
 // RunCmd
 func RunCmd() {
 	cmd := &cobra.Command{
-		Use:          "blogctl",
+		Use:          "storectl",
 		Short:        "模仿kubectl",
-		Example:      "blogctl",
+		Example:      "storectl",
 		SilenceUsage: true,
 	}
 
