@@ -4,6 +4,7 @@
 
 ### api server资源
 ![](https://github.com/googs1025/imitate-k8s-kubectl-clientSet/blob/main/img/%E6%B5%81%E7%A8%8B%E5%9B%BE1.jpg?raw=true)
+
 模仿k8s api server 的资源对象分类，分为apps、core等。
 1. 目前支持两种资源大类，并可以在api server中不断扩展
     a. core：可以看成水果类资源
