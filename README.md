@@ -1,5 +1,17 @@
 ## 模拟k8s中的kubectl命令模式与clientSet调用的练习。
 
+### 目前还在一边开发一边设计，主要为了学习k8s的设计理念而创建的。
+
+### api server资源
+模仿k8s api server 的资源对象分类，分为apps、core等。
+1. 目前支持两种资源大类，并可以在api server中不断扩展
+    a. core：可以看成水果类资源
+    b. apps：可以看成汽车类资源
+2. 提供每种资源的create update delete get list 方法
+
+**TODO** 未来提供scheme注册表。
+
+**TODO** 目前url path没有区分apps core这类资源(ex:localhost:8080/car)
 ### clientSet 风格客户端封装
 如下图所示：基于net/http基础库的封装，并依据k8s风格封装http CRUD接口。
 

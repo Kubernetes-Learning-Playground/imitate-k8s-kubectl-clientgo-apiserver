@@ -2,11 +2,13 @@ package stores
 
 import (
 	"practice_ctl/pkg/util/stores/rest"
+	"practice_ctl/pkg/util/stores/typed/apps"
 	"practice_ctl/pkg/util/stores/typed/core"
 )
 
 // 模仿k8s 的clientset
-// 调用方式：clientSet.Core().Version().Get()
+// 调用方式：clientSet.Core().Apple().Get()
+// 调用方式：clientSet.Apps().Car().Get()
 
 // ClientSet 客户端
 type ClientSet struct {
@@ -15,6 +17,10 @@ type ClientSet struct {
 
 func (cs *ClientSet) Core() core.CoreInterface {
 	return core.New(cs.RESTClient)
+}
+
+func (cs *ClientSet) Apps() apps.AppsInterface {
+	return apps.New(cs.RESTClient)
 }
 
 // NewForConfig 读配置文件

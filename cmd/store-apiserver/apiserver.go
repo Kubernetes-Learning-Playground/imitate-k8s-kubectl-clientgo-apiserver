@@ -10,6 +10,7 @@ func main() {
 		Mount("",
 			&controllers.VersionCtl{},
 			&controllers.AppleCtl{},
+			&controllers.CarCtl{},
 		).
 		LaunchWithPort(8080)
 }

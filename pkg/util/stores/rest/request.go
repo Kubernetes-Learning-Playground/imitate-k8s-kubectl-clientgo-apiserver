@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	appsv1 "practice_ctl/pkg/apis/apps/v1"
 	v1 "practice_ctl/pkg/apis/core/v1"
 	"strings"
 )
@@ -24,12 +25,9 @@ func NewRequest(c *RESTClient) *Request {
 	} //默认是根
 }
 
-//最终执行 http请求
-//func (r *Request) Do() (*resty.Response, error) {
-//	return r.c.R().Execute(r.verb, r.path)
-//}
 
 // Do 需要对底层库进行封装，不要暴露
+// 最终执行 http请求
 func (r *Request) Do() Result {
 	var ret Result
 
@@ -57,6 +55,62 @@ func (r *Request) Path(p string) *Request {
 	r.req.URL.Path = p
 	return r
 }
+
+func (r *Request) GetCarName(name string) *Request {
+
+	q := r.req.URL.Query()
+
+	queryParam := map[string]string{
+		"name": name,
+	}
+	for k, v := range queryParam {
+		q.Add(k, v)
+	}
+	r.req.URL.RawQuery = q.Encode()
+
+	return r
+}
+
+func (r *Request) CreateCar(car *appsv1.Car) *Request {
+	bodyByte, _ := json.Marshal(car)
+
+	r.req.Header.Add("Content-Type", "application/json")
+	a := bytes.NewBuffer(bodyByte)
+	rc := io.NopCloser(a)
+	r.req.Body = rc
+
+	return r
+}
+
+func (r *Request) UpdateCar(car *appsv1.Car) *Request {
+	bodyByte, _ := json.Marshal(car)
+
+	r.req.Header.Add("Content-Type", "application/json")
+	a := bytes.NewBuffer(bodyByte)
+	rc := io.NopCloser(a)
+	r.req.Body = rc
+
+	return r
+}
+
+func (r *Request) DeleteCar(name string) *Request {
+	q := r.req.URL.Query()
+
+	queryParam := map[string]string{
+		"name": name,
+	}
+	for k, v := range queryParam {
+		q.Add(k, v)
+	}
+	r.req.URL.RawQuery = q.Encode()
+
+	return r
+}
+
+func (r *Request) ListCar() *Request {
+	return r
+}
+
 
 func (r *Request) GetAppleName(name string) *Request {
 
