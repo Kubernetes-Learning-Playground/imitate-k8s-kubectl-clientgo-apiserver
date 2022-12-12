@@ -68,6 +68,7 @@
 
 
 ### kubectl 风格命令行封装
+![](https://github.com/googs1025/imitate-k8s-kubectl-clientSet/blob/main/img/%E6%B5%81%E7%A8%8B%E5%9B%BE11.jpg?raw=true)
 底层使用client-go对资源进行CRUD操作。
 #### 使用方法
 1. 还没编译，所以执行使用 go run storectl.go，编译后放入执行的/bin目录中，可以使用storectl list xxxx
