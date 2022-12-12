@@ -66,7 +66,26 @@
 
 
 ### kubectl 风格命令行封装
+底层使用client-go对资源进行CRUD操作。
+#### 使用方法
+1. 还没编译，所以执行使用 go run storectl.go，编译后放入执行的/bin目录中，可以使用storectl list xxxx
+2. 目前仅支持list create两种操作。
+```bigquery
+# 进入：cmd/storectl目录中
+# 获取命令： storectl list apples 
+➜  storectl git:(main) ✗ go run storectl.go list apples aaa.json
++-----------+-----------+-----------+-----------+----------+
+| APPLE名称 |   PRICE   |   PLACE   |   COLOR   |   SIZE   |
++-----------+-----------+-----------+-----------+----------+
+| aaaa      | ccc       | ccc       | aaa       | aaa      |
+| initApple | initPrice | initPlace | initColor | initSize |
++-----------+-----------+-----------+-----------+----------+
+# 创建命令 ： 类似 storectl create apples aaa.json
+➜  storectl git:(main) ✗ go run storectl.go create apples aaa.json
+name:dddafjjhadsklfhaaaa is created
 
+
+```
 
 
 ### 项目目录
