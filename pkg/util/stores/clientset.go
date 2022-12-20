@@ -15,11 +15,11 @@ type ClientSet struct {
 	*rest.RESTClient
 }
 
-func (cs *ClientSet) Core() core.CoreInterface {
+func (cs *ClientSet) CoreV1() core.CoreInterface {
 	return core.New(cs.RESTClient)
 }
 
-func (cs *ClientSet) Apps() apps.AppsInterface {
+func (cs *ClientSet) AppsV1() apps.AppsInterface {
 	return apps.New(cs.RESTClient)
 }
 

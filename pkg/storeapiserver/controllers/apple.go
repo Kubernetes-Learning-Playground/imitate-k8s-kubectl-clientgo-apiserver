@@ -166,15 +166,15 @@ func (a *AppleCtl) Name() string {
 
 // 路由
 func (a *AppleCtl) Build(goft *goft.Goft) {
-	// GET  http://localhost:8080/apple
-	// GET  http://localhost:8080/applelist
-	// POST  http://localhost:8080/apple
-	// DELETE  http://localhost:8080/apple
-	// PUT  http://localhost:8080/apple
-	goft.Handle("GET", "/apple", a.GetApple)
-	goft.Handle("GET", "/applelist", a.ListApple)
-	goft.Handle("POST", "/apple", a.CreateApple)
-	goft.Handle("DELETE", "/apple", a.DeleteApple)
-	goft.Handle("PUT", "/apple", a.UpdateApple)
+	// GET  http://localhost:8080/v1/apple
+	// GET  http://localhost:8080/v1/applelist
+	// POST  http://localhost:8080/v1/apple
+	// DELETE  http://localhost:8080/v1/apple
+	// PUT  http://localhost:8080/v1/apple
+	goft.Handle("GET", "/v1/apple", a.GetApple)
+	goft.Handle("GET", "/v1/applelist", a.ListApple)
+	goft.Handle("POST", "/v1/apple", a.CreateApple)
+	goft.Handle("DELETE", "/v1/apple", a.DeleteApple)
+	goft.Handle("PUT", "/v1/apple", a.UpdateApple)
 
 }

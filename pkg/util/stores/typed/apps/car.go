@@ -18,7 +18,7 @@ func newCar(c rest.Interface) CarInterface {
 	return &car{client: c}
 }
 
-// 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
+
 type CarInterface interface {
 	Get(name string) (ver *appsv1.Car, err error)
 	List() (appleList *appsv1.CarList, err error)

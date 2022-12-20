@@ -27,13 +27,13 @@ func main() {
 		Brand: "car1",
 		Price: "car1",
 	}
-	c, err := clientSet.Apps().Car().Create(a)
+	c, err := clientSet.AppsV1().Car().Create(a)
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println("name:", c.Name,  "brand:", c.Brand, "color:", c.Color, "price:", c.Price)
 
-	car1, err := clientSet.Apps().Car().Get(c.Name)
+	car1, err := clientSet.AppsV1().Car().Get(c.Name)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -46,13 +46,13 @@ func main() {
 		Price: "car1ccc",
 	}
 
-	carupdate, err := clientSet.Apps().Car().Update(aaa)
+	carupdate, err := clientSet.AppsV1().Car().Update(aaa)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println("name: ", carupdate.Name, "color: ", carupdate.Color, "brand: ", carupdate.Brand, "price: ", carupdate.Price)
 
-	carList, err := clientSet.Apps().Car().List()
+	carList, err := clientSet.AppsV1().Car().List()
 	if err != nil {
 		log.Fatalln(err)
 	}

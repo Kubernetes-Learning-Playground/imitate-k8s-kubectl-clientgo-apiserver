@@ -163,16 +163,16 @@ func (a *CarCtl) Name() string {
 
 // 路由
 func (a *CarCtl) Build(goft *goft.Goft) {
-	// GET  http://localhost:8080/car
-	// GET  http://localhost:8080/carlist
-	// POST  http://localhost:8080/car
-	// DELETE  http://localhost:8080/car
-	// PUT  http://localhost:8080/car
-	goft.Handle("GET", "/car", a.GetApple)
-	goft.Handle("GET", "/carlist", a.ListCar)
-	goft.Handle("POST", "/car", a.CreateCar)
-	goft.Handle("DELETE", "/car", a.DeleteCar)
-	goft.Handle("PUT", "/car", a.UpdateCar)
+	// GET  http://localhost:8080/v1/car
+	// GET  http://localhost:8080/v1/carlist
+	// POST  http://localhost:8080/v1/car
+	// DELETE  http://localhost:8080/v1/car
+	// PUT  http://localhost:8080/v1/car
+	goft.Handle("GET", "/v1/car", a.GetApple)
+	goft.Handle("GET", "/v1/carlist", a.ListCar)
+	goft.Handle("POST", "/v1/car", a.CreateCar)
+	goft.Handle("DELETE", "/v1/car", a.DeleteCar)
+	goft.Handle("PUT", "/v1/car", a.UpdateCar)
 
 }
 

@@ -31,13 +31,13 @@ func main() {
 		Place: "apple1",
 		Price: "apple1",
 	}
-	c, err := clientSet.Core().Apple().Create(a)
+	c, err := clientSet.CoreV1().Apple().Create(a)
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println("name:", c.Name,  "size:", c.Size, "color:", c.Color, "place:", c.Place, "price:", c.Price)
 
-	apple1, err := clientSet.Core().Apple().Get(c.Name)
+	apple1, err := clientSet.CoreV1().Apple().Get(c.Name)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -51,13 +51,13 @@ func main() {
 		Price: "apple1ccc",
 	}
 
-	appleupdate, err := clientSet.Core().Apple().Update(aaa)
+	appleupdate, err := clientSet.CoreV1().Apple().Update(aaa)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println("name: ", appleupdate.Name,  "size: ", appleupdate.Size, "color: ", appleupdate.Color, "place: ", appleupdate.Place, "price: ", appleupdate.Price)
 
-	appleList, err := clientSet.Core().Apple().List()
+	appleList, err := clientSet.CoreV1().Apple().List()
 	if err != nil {
 		log.Fatalln(err)
 	}
