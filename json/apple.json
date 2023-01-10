@@ -1,0 +1,11 @@
+{
+  "apiVersion": "corev1",
+  "kind": "APPLE",
+  "name": "aaaacccccc",
+  "spec": {
+    "size": "dddd",
+    "color": "dddd",
+    "place": "ddd",
+    "prize": "cccc"
+  }
+}

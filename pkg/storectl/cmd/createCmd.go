@@ -77,7 +77,7 @@ func CreateApple(client *stores.ClientSet, path string) error {
 	}
 
 	// 创建操作
-	apple, err := client.Core().Apple().Create(a)
+	apple, err := client.CoreV1().Apple().Create(a)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -102,7 +102,7 @@ func CreateCar(client *stores.ClientSet, path string) error{
 	}
 
 	// 创建操作
-	car, err := client.Apps().Car().Create(a)
+	car, err := client.AppsV1().Car().Create(a)
 	if err != nil {
 		fmt.Println(err)
 	}

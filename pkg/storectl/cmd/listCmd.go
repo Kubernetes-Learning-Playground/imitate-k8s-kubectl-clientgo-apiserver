@@ -64,7 +64,7 @@ func ListCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 
 func ListApple(client *stores.ClientSet) error {
 
-	appleList, err := client.Core().Apple().List()
+	appleList, err := client.CoreV1().Apple().List()
 	if err != nil {
 		log.Println(err)
 		return err
@@ -78,7 +78,7 @@ func ListApple(client *stores.ClientSet) error {
 
 
 	for _, apple := range appleList.Item {
-		appleRow := []string{apple.Name, apple.Price, apple.Place, apple.Color, apple.Size}
+		appleRow := []string{apple.Name, apple.Spec.Price, apple.Spec.Place, apple.Spec.Color, apple.Spec.Size}
 
 		table.Append(appleRow)
 	}
@@ -92,7 +92,7 @@ func ListApple(client *stores.ClientSet) error {
 
 func ListCar(client *stores.ClientSet) error {
 
-	carList, err := client.Apps().Car().List()
+	carList, err := client.AppsV1().Car().List()
 	if err != nil {
 		log.Println(err)
 		return err

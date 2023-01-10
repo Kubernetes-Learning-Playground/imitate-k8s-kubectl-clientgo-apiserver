@@ -37,7 +37,7 @@ func (v *apple) Get(name string) (ver *v1.Apple, err error) {
 	ver = &v1.Apple{}
 	err = v.client.
 		Get().
-		Path("/apple").GetAppleName(name).
+		Path("/v1/apple").GetAppleName(name).
 		Do().
 		Into(ver)
 
@@ -48,21 +48,21 @@ func (v *apple) Get(name string) (ver *v1.Apple, err error) {
 func (v *apple) Create(apple *v1.Apple) (ver *v1.Apple, err error) {
 	ver = &v1.Apple{}
 	err = v.client.
-		Post().Path("/apple").CreateApple(apple).
+		Post().Path("/v1/apple").CreateApple(apple).
 		Do().Into(ver)
 	return
 }
 
 func (v *apple) List() (appleList *v1.AppleList, err error) {
 	appleList = &v1.AppleList{}
-	err = v.client.Get().Path("/applelist").ListApple().Do().Into(appleList)
+	err = v.client.Get().Path("/v1/applelist").ListApple().Do().Into(appleList)
 
 	return
 }
 
 func (v *apple) Delete(name string) (err error) {
 	ver := &v1.Apple{}
-	err = v.client.Delete().Path("/apple").DeleteApple(name).Do().Into(ver)
+	err = v.client.Delete().Path("/v1/apple").DeleteApple(name).Do().Into(ver)
 
 	return
 }
@@ -70,7 +70,7 @@ func (v *apple) Delete(name string) (err error) {
 func (v *apple) Update(apple *v1.Apple) (ver *v1.Apple, err error) {
 	ver = &v1.Apple{}
 	err = v.client.
-		Put().Path("/apple").UpdateApple(apple).
+		Put().Path("/v1/apple").UpdateApple(apple).
 		Do().Into(ver)
 	return
 }

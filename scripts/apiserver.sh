@@ -1,3 +1,3 @@
 #! /bin/bash
 
-go run ../cmd/blog-apiserver/apiserver.go
+go run ../cmd/store-apiserver/apiserver.go

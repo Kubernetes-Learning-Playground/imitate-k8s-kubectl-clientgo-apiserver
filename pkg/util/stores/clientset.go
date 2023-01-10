@@ -7,8 +7,8 @@ import (
 )
 
 // 模仿k8s 的clientset
-// 调用方式：clientSet.Core().Apple().Get()
-// 调用方式：clientSet.Apps().Car().Get()
+// 调用方式：clientSet.CoreV1().Apple().Get()
+// 调用方式：clientSet.AppsV1().Car().Get()
 
 // ClientSet 客户端
 type ClientSet struct {
