@@ -10,10 +10,9 @@
     a. core：可以看成水果类资源
     b. apps：可以看成汽车类资源
 2. 提供每种资源的create update delete get list 方法
+3. 资源对象改成声明式api的形式，每次更新底层都是使用createOrUpdate方法
 
 **TODO** 未来提供scheme注册表。
-
-**TODO** 目前url path没有区分apps core这类资源(ex:localhost:8080/car)
 ### clientSet 风格客户端封装
 如下图所示：基于net/http基础库的封装，并依据k8s风格封装http CRUD接口。
 
@@ -25,40 +24,56 @@
 ```bigquery
     // 创建操作
 	a := &v1.Apple{
-		Name: "apple1",
-		Size: "apple1",
-		Color: "apple1",
-		Place: "apple1",
-		Price: "apple1",
+		ApiVersion: "core/v1",
+		Kind: "APPLE",
+		Metadata: v1.Metadata{
+			Name: "apple1",
+		},
+		Spec: v1.AppleSpec{
+			Size: "apple1",
+			Color: "apple1",
+			Place: "apple1",
+			Price: "apple1",
+		},
+		Status: v1.AppleStatus{
+			Status: "created",
+		},
+
 	}
-	c, err := clientSet.Core().Apple().Create(a)
-	if err != nil {
+	c, err := clientSet.CoreV1().Apple().Create(a)
+    if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("name:", c.Name,  "size:", c.Size, "color:", c.Color, "place:", c.Place, "price:", c.Price)
+	fmt.Println("name:", c.Name,  "size:", c.Spec.Size, "color:", c.Spec.Color, "place:", c.Spec.Place, "price:", c.Spec.Price)
 
-	apple1, err := clientSet.Core().Apple().Get(c.Name)
-	if err != nil {
+	apple1, err := clientSet.CoreV1().Apple().Get(c.Name)
+    if err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println("name: ", apple1.Name)
 
 	aaa := &v1.Apple{
-		Name: "apple1",
-		Size: "apple1dddd",
-		Color: "apple1ccc",
-		Place: "apple1ccc",
-		Price: "apple1ccc",
+		ApiVersion: "core/v1",
+		Kind: "APPLE",
+		Metadata: v1.Metadata{
+			Name: "apple1",
+		},
+		Spec: v1.AppleSpec{
+			Size: "apple1dddd",
+			Color: "apple1ccc",
+			Place: "apple1ccc",
+			Price: "apple1ccc",
+		},
 	}
 
-	appleupdate, err := clientSet.Core().Apple().Update(aaa)
-	if err != nil {
+	appleUpdate, err := clientSet.CoreV1().Apple().Update(aaa)
+if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println("name: ", appleupdate.Name,  "size: ", appleupdate.Size, "color: ", appleupdate.Color, "place: ", appleupdate.Place, "price: ", appleupdate.Price)
+	fmt.Println("name: ", appleUpdate.Name,  "size: ", appleUpdate.Spec.Size, "color: ", appleUpdate.Spec.Color, "place: ", appleUpdate.Spec.Place, "price: ", appleUpdate.Spec.Price)
 
-	appleList, err := clientSet.Core().Apple().List()
-	if err != nil {
+	appleList, err := clientSet.CoreV1().Apple().List()
+if err != nil {
 		log.Fatalln(err)
 	}
 	for _, apple := range appleList.Item {
