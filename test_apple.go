@@ -3,12 +3,8 @@ package main
 import (
 	"fmt"
 
+	"log"
 	v1 "practice_ctl/pkg/apis/core/v1"
-
-	//v1 "practice_ctl/pkg/apis/core/v1"
-
-	//"log"
-
 	"practice_ctl/pkg/util/stores"
 	"practice_ctl/pkg/util/stores/rest"
 	"time"
@@ -27,7 +23,9 @@ func main() {
 	a := &v1.Apple{
 		ApiVersion: "core/v1",
 		Kind: "APPLE",
-		Name: "apple1",
+		Metadata: v1.Metadata{
+			Name: "apple1",
+		},
 		Spec: v1.AppleSpec{
 			Size: "apple1",
 			Color: "apple1",
@@ -45,37 +43,38 @@ func main() {
 	}
 	fmt.Println("name:", c.Name,  "size:", c.Spec.Size, "color:", c.Spec.Color, "place:", c.Spec.Place, "price:", c.Spec.Price)
 
-	//apple1, err := clientSet.CoreV1().Apple().Get(c.Name)
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//fmt.Println("name: ", apple1.Name)
-	//
-	//aaa := &v1.Apple{
-	//	ApiVersion: "core/v1",
-	//	Kind: "APPLE",
-	//	Name: "apple1",
-	//	Spec: v1.AppleSpec{
-	//		Size: "apple1dddd",
-	//		Color: "apple1ccc",
-	//		Place: "apple1ccc",
-	//		Price: "apple1ccc",
-	//	},
-	//}
-	//
-	//appleUpdate, err := clientSet.CoreV1().Apple().Update(aaa)
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//fmt.Println("name: ", appleUpdate.Name,  "size: ", appleUpdate.Spec.Size, "color: ", appleUpdate.Spec.Color, "place: ", appleUpdate.Spec.Place, "price: ", appleUpdate.Spec.Price)
-	//
-	//appleList, err := clientSet.CoreV1().Apple().List()
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//for _, apple := range appleList.Item {
-	//	fmt.Println(apple.Name)
-	//}
+	apple1, err := clientSet.CoreV1().Apple().Get(c.Name)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("name: ", apple1.Name)
 
+	aaa := &v1.Apple{
+		ApiVersion: "core/v1",
+		Kind: "APPLE",
+		Metadata: v1.Metadata{
+			Name: "apple1",
+		},
+		Spec: v1.AppleSpec{
+			Size: "apple1dddd",
+			Color: "apple1ccc",
+			Place: "apple1ccc",
+			Price: "apple1ccc",
+		},
+	}
+
+	appleUpdate, err := clientSet.CoreV1().Apple().Update(aaa)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("name: ", appleUpdate.Name,  "size: ", appleUpdate.Spec.Size, "color: ", appleUpdate.Spec.Color, "place: ", appleUpdate.Spec.Place, "price: ", appleUpdate.Spec.Price)
+
+	appleList, err := clientSet.CoreV1().Apple().List()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	for _, apple := range appleList.Item {
+		fmt.Println(apple.Name)
+	}
 
 }

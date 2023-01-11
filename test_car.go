@@ -22,16 +22,27 @@ func main() {
 
 	// 创建操作
 	a := &appsv1.Car{
-		Name: "car1",
-		Color: "car1",
-		Brand: "car1",
-		Price: "car1",
+		ApiVersion: "apps/v1",
+		Kind: "CAR",
+		Metadata: appsv1.Metadata{
+			Name: "car1",
+		},
+		Spec: appsv1.CarSpec{
+			Color: "car1",
+			Brand: "car1",
+			Price: "car1",
+		},
+		Status: appsv1.CarStatus{
+			Status: "created",
+		},
+
 	}
+
 	c, err := clientSet.AppsV1().Car().Create(a)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("name:", c.Name,  "brand:", c.Brand, "color:", c.Color, "price:", c.Price)
+	fmt.Println("name:", c.Name,  "brand:", c.Spec.Brand, "color:", c.Spec.Color, "price:", c.Spec.Price)
 
 	car1, err := clientSet.AppsV1().Car().Get(c.Name)
 	if err != nil {
@@ -39,18 +50,26 @@ func main() {
 	}
 	fmt.Println("name: ", car1.Name)
 
+
 	aaa := &appsv1.Car{
-		Name: "car1",
-		Color: "car1ccc",
-		Brand: "car1ccc",
-		Price: "car1ccc",
+		ApiVersion: "apps/v1",
+		Kind: "CAR",
+		Metadata: appsv1.Metadata{
+			Name: "car1",
+		},
+		Spec: appsv1.CarSpec{
+			Color: "car12222",
+			Brand: "car12233",
+			Price: "car12347934",
+		},
+
 	}
 
-	carupdate, err := clientSet.AppsV1().Car().Update(aaa)
+	carUpdate, err := clientSet.AppsV1().Car().Update(aaa)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println("name: ", carupdate.Name, "color: ", carupdate.Color, "brand: ", carupdate.Brand, "price: ", carupdate.Price)
+	fmt.Println("name: ", carUpdate.Name, "color: ", carUpdate.Spec.Color, "brand: ", carUpdate.Spec.Brand, "price: ", carUpdate.Spec.Price)
 
 	carList, err := clientSet.AppsV1().Car().List()
 	if err != nil {
@@ -59,7 +78,6 @@ func main() {
 	for _, car := range carList.Item {
 		fmt.Println(car.Name)
 	}
-
 
 }
 

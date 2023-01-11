@@ -3,10 +3,14 @@ package v1
 type Apple struct {
 	ApiVersion string       `json:"apiVersion" yaml:"apiVersion"`
 	Kind 	   string  		`json:"kind" yaml:"kind"`
-	Name       string		`json:"name" yaml:"name"`
+	Metadata   				`json:"metadata" yaml:"metadata"`
 	Spec 	   AppleSpec    `json:"spec" yaml:"spec"`
 	Status     AppleStatus  `json:"status" yaml:"status"`
 
+}
+
+type Metadata struct {
+	Name string `json:"name" yaml:"name"`
 }
 
 type AppleSpec struct {

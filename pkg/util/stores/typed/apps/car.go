@@ -37,7 +37,7 @@ func (v *car) Get(name string) (ver *appsv1.Car, err error) {
 	ver = &appsv1.Car{}
 	err = v.client.
 		Get().
-		Path("/car").GetCarName(name).
+		Path("/v1/car").GetCarName(name).
 		Do().
 		Into(ver)
 
@@ -48,21 +48,21 @@ func (v *car) Get(name string) (ver *appsv1.Car, err error) {
 func (v *car) Create(car *appsv1.Car) (ver *appsv1.Car, err error) {
 	ver = &appsv1.Car{}
 	err = v.client.
-		Post().Path("/car").CreateCar(car).
+		Post().Path("/v1/car").CreateCar(car).
 		Do().Into(ver)
 	return
 }
 
 func (v *car) List() (carList *appsv1.CarList, err error) {
 	carList = &appsv1.CarList{}
-	err = v.client.Get().Path("/carlist").ListCar().Do().Into(carList)
+	err = v.client.Get().Path("/v1/carlist").ListCar().Do().Into(carList)
 
 	return
 }
 
 func (v *car) Delete(name string) (err error) {
 	ver := &appsv1.Car{}
-	err = v.client.Delete().Path("/car").DeleteCar(name).Do().Into(ver)
+	err = v.client.Delete().Path("/v1/car").DeleteCar(name).Do().Into(ver)
 
 	return
 }
@@ -70,7 +70,7 @@ func (v *car) Delete(name string) (err error) {
 func (v *car) Update(car *appsv1.Car) (ver *appsv1.Car, err error) {
 	ver = &appsv1.Car{}
 	err = v.client.
-		Put().Path("/car").UpdateCar(car).
+		Put().Path("/v1/car").UpdateCar(car).
 		Do().Into(ver)
 	return
 }

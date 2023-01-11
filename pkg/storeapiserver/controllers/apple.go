@@ -16,7 +16,9 @@ func init() {
 	init := &v1.Apple{
 		ApiVersion: "core/v1",
 		Kind: "APPLE",
-		Name: "initApple",
+		Metadata: v1.Metadata{
+			Name: "initApple",
+		},
 		Spec: v1.AppleSpec{
 			Place: "initPlace",
 			Price: "initPrice",
@@ -76,7 +78,9 @@ func createOrUpdateApple(apple *v1.Apple) (*v1.Apple, error) {
 	new := &v1.Apple{
 		ApiVersion: apple.ApiVersion,
 		Kind: apple.Kind,
-		Name: apple.Name,
+		Metadata: v1.Metadata{
+			Name: apple.Name,
+		},
 		Spec: apple.Spec,
 		Status: a,
 	}

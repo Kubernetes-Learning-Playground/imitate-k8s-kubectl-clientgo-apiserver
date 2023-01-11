@@ -106,7 +106,7 @@ func ListCar(client *stores.ClientSet) error {
 
 
 	for _, car := range carList.Item {
-		carRow := []string{car.Name, car.Price, car.Brand, car.Color}
+		carRow := []string{car.Name, car.Spec.Price, car.Spec.Brand, car.Spec.Color}
 
 		table.Append(carRow)
 	}

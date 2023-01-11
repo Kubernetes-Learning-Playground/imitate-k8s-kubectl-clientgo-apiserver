@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/shenyisyn/goft-gin/goft"
+	"k8s.io/klog/v2"
 	appsv1 "practice_ctl/pkg/apis/apps/v1"
 )
 
@@ -13,12 +14,22 @@ var CarMap = map[string]*appsv1.Car{}
 func init() {
 	// 初始化一个对象
 	init := &appsv1.Car{
-		Name: "initCar",
-		Price: "initPrice",
-		Brand: "initBrand",
-		Color: "initColor",
+		ApiVersion: "APPS/v1",
+		Kind: "CAR",
+		Metadata: appsv1.Metadata{
+			Name: "initCar",
+		},
+		Spec: appsv1.CarSpec{
+			Brand: "initBrand",
+			Price: "initPrice",
+			Color: "initColor",
+		},
+		Status: appsv1.CarStatus{
+			Status: "created",
+		},
 	}
 	CarMap[init.Name] = init
+
 
 }
 
@@ -48,17 +59,63 @@ func listCar() (*appsv1.CarList, error) {
 	return carList, nil
 }
 
+func createOrUpdateCar(car *appsv1.Car) (*appsv1.Car, error) {
+	if old, ok := CarMap[car.Name]; ok {
+		klog.Infof("find the apple %v, and update it!", old.Name)
+		old.Name = car.Name
+		old.Spec.Price = car.Spec.Price
+		old.Spec.Brand = car.Spec.Brand
+		old.Spec.Color = car.Spec.Color
+		old.Status.Status = "updated"
+		return old, nil
+	}
+	klog.Infof("not find this car, and create it!")
+
+	new := &appsv1.Car{
+		ApiVersion: "apps/v1",
+		Kind: "CAR",
+		Metadata: appsv1.Metadata{
+			Name: car.Name,
+		},
+		Spec: appsv1.CarSpec{
+			Brand: car.Spec.Brand,
+			Price: car.Spec.Price,
+			Color: car.Spec.Color,
+		},
+		Status: appsv1.CarStatus{
+			Status: "created",
+		},
+	}
+
+
+	// 存入map
+	CarMap[car.Name] = new
+
+	return new, nil
+}
+
+
 func createCar(car *appsv1.Car) (*appsv1.Car, error) {
 	// 如果查到就抛错
 	if _, ok := CarMap[car.Name]; ok {
 		return nil, errors.New("this car is created ")
 	}
 	new := &appsv1.Car{
-		Name: car.Name,
-		Price: car.Price,
-		Brand: car.Brand,
-		Color: car.Color,
+		ApiVersion: "apps/v1",
+		Kind: "CAR",
+		Metadata: appsv1.Metadata{
+			Name: car.Name,
+		},
+		Spec: appsv1.CarSpec{
+			Brand: car.Spec.Brand,
+			Price: car.Spec.Price,
+			Color: car.Spec.Color,
+		},
+		Status: appsv1.CarStatus{
+			Status: "created",
+		},
 	}
+
 
 	// 存入map
 	CarMap[car.Name] = new
@@ -71,9 +128,9 @@ func updateCar(car *appsv1.Car) (*appsv1.Car, error) {
 	// 重新赋值
 	if old, ok := CarMap[car.Name]; ok {
 		old.Name = car.Name
-		old.Price = car.Price
-		old.Brand = car.Brand
-		old.Color = car.Color
+		old.Spec.Price = car.Spec.Price
+		old.Spec.Brand = car.Spec.Brand
+		old.Spec.Color = car.Spec.Color
 		return old, nil
 	}
 
@@ -107,7 +164,7 @@ func (a *CarCtl) CreateCar(c *gin.Context) goft.Json {
 		fmt.Println("bind json err!")
 		return gin.H{"code": "400", "error": err}
 	}
-	res, err := createCar(r)
+	res, err := createOrUpdateCar(r)
 	if err != nil {
 		fmt.Println("create err!")
 		return gin.H{"code": "400", "error": err}
@@ -123,7 +180,7 @@ func (a *CarCtl) UpdateCar(c *gin.Context) goft.Json {
 		fmt.Println("bind json err!")
 		return gin.H{"code": "400", "error": err}
 	}
-	res, err := updateCar(r)
+	res, err := createOrUpdateCar(r)
 	if err != nil {
 		fmt.Println("update err!")
 		return gin.H{"code": "400", "error": err}
