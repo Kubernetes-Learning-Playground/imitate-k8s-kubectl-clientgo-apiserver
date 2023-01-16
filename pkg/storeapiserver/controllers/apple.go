@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/shenyisyn/goft-gin/goft"
 	"k8s.io/klog/v2"
+	"practice_ctl/etcd"
 	v1 "practice_ctl/pkg/apis/core/v1"
 )
 
@@ -30,13 +31,24 @@ func init() {
 		},
 
 	}
+
 	AppleMap[init.Name] = init
+	strKey, strValue := parseEtcdData(init)
+	_ = etcd.Put(strKey, strValue)
+
 
 }
 
 
 func getApple(name string) (*v1.Apple, error) {
 	if apple, ok := AppleMap[name]; ok {
+
+		strKey, _ := parseEtcdData(apple)
+		err := etcd.Get(strKey)
+		if err != nil {
+			return apple, nil
+		}
+
 		return apple, nil
 	}
 	return nil, errors.New("not found apple")
@@ -44,7 +56,12 @@ func getApple(name string) (*v1.Apple, error) {
 
 func deleteApple(name string) error {
 	if apple, ok := AppleMap[name]; ok {
+		strKey, _ := parseEtcdData(apple)
+		err := etcd.Delete(strKey)
 		delete(AppleMap, apple.Name)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 	return errors.New("not found this apple")
@@ -69,6 +86,13 @@ func createOrUpdateApple(apple *v1.Apple) (*v1.Apple, error) {
 		old.Spec.Size = apple.Spec.Size
 		old.Spec.Color = apple.Spec.Color
 		old.Status.Status = "updated"
+
+		strKey, strValue := parseEtcdData(apple)
+		err := etcd.Put(strKey, strValue)
+		if err != nil {
+			return old, err
+		}
+
 		return old, nil
 	}
 	klog.Infof("not find this apple, and create it!")
@@ -88,6 +112,12 @@ func createOrUpdateApple(apple *v1.Apple) (*v1.Apple, error) {
 
 	// 存入map
 	AppleMap[apple.Name] = new
+
+	strKey, strValue := parseEtcdData(new)
+	err := etcd.Put(strKey, strValue)
+	if err != nil {
+		return new, err
+	}
 
 	return new, nil
 }
@@ -205,6 +235,13 @@ func (a *AppleCtl) ListApple(c *gin.Context) goft.Json {
 
 func (a *AppleCtl) Name() string {
 	return "AppleCtl"
+}
+
+func parseEtcdData(apple *v1.Apple) (string, string) {
+	strKey := "/" + apple.Kind + "/" + apple.Name
+	strValue := apple.Name
+
+	return strKey, strValue
 }
 
 // 路由
