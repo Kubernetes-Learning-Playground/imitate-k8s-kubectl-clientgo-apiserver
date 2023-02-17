@@ -56,5 +56,4 @@ func MergeFlags(cmds ...*cobra.Command) {
 	for _, cmd := range cmds {
 		cfgFlags.AddFlags(cmd.Flags())
 	}
-
 }
