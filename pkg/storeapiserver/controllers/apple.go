@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/shenyisyn/goft-gin/goft"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"k8s.io/klog/v2"
 	"practice_ctl/etcd"
 	v1 "practice_ctl/pkg/apis/core/v1"
@@ -23,7 +24,7 @@ func init() {
 		Spec: v1.AppleSpec{
 			Place: "initPlace",
 			Price: "initPrice",
-			Size: "initSize",
+			Size:  "initSize",
 			Color: "initColor",
 		},
 		Status: v1.AppleStatus{
@@ -45,7 +46,9 @@ func getApple(name string) (*v1.Apple, error) {
 
 		strKey, _ := parseEtcdData(apple)
 		err := etcd.Get(strKey)
+		klog.Info("get key: ", strKey)
 		if err != nil {
+			klog.Errorf("get key error: ", strKey, err)
 			return apple, nil
 		}
 
@@ -57,9 +60,11 @@ func getApple(name string) (*v1.Apple, error) {
 func deleteApple(name string) error {
 	if apple, ok := AppleMap[name]; ok {
 		strKey, _ := parseEtcdData(apple)
+		klog.Info("delete key: ", strKey)
 		err := etcd.Delete(strKey)
 		delete(AppleMap, apple.Name)
 		if err != nil {
+			klog.Errorf("delete key error: ", strKey, err)
 			return err
 		}
 		return nil
@@ -88,8 +93,10 @@ func createOrUpdateApple(apple *v1.Apple) (*v1.Apple, error) {
 		old.Status.Status = "updated"
 
 		strKey, strValue := parseEtcdData(apple)
+		klog.Info("update key: ", strKey)
 		err := etcd.Put(strKey, strValue)
 		if err != nil {
+			klog.Errorf("update key error: ", strKey, err)
 			return old, err
 		}
 
@@ -114,12 +121,65 @@ func createOrUpdateApple(apple *v1.Apple) (*v1.Apple, error) {
 	AppleMap[apple.Name] = new
 
 	strKey, strValue := parseEtcdData(new)
+	klog.Info("create key: ", strKey)
 	err := etcd.Put(strKey, strValue)
 	if err != nil {
+		klog.Errorf("create key error: ", strKey, err)
 		return new, err
 	}
 
 	return new, nil
+}
+
+func watchApple(applePrefix string)  {
+
+	outputC := make(chan *v1.Apple)
+
+	watcher := etcd.Watch(applePrefix, clientv3.WithPrefix())
+	for {
+		select {
+		case v, ok := <-watcher.ResultChan:
+			if ok {
+
+				for _, event := range v.Events {
+					fmt.Println("value: ", string(event.Kv.Value))
+					name := string(event.Kv.Value)
+					if apple, ok := AppleMap[name]; ok {
+						fmt.Println(apple.Name, apple.Kind, apple.Spec)
+						outputC <-apple
+					}
+				}
+
+
+			}
+
+		}
+	}
+	//go func() {
+	//
+	//	for {
+	//		select {
+	//		case v, ok := <-watcher.ResultChan:
+	//			if ok {
+	//
+	//				for _, event := range v.Events {
+	//					name := string(event.Kv.Value)
+	//					if apple, ok := AppleMap[name]; ok {
+	//						outputC <-apple
+	//					}
+	//				}
+	//
+	//
+	//			}
+	//
+	//		}
+	//	}
+	//
+	//}()
+
+
+
+
 }
 
 //func createApple(apple *v1.Apple) (*v1.Apple, error) {
@@ -233,6 +293,16 @@ func (a *AppleCtl) ListApple(c *gin.Context) goft.Json {
 
 }
 
+func (a *AppleCtl) WatchApple() {
+
+	watchApple("/APPLE")
+
+	//for i := range outputC {
+	//	fmt.Println(i.Name, i.Kind, i.Spec)
+	//}
+
+}
+
 func (a *AppleCtl) Name() string {
 	return "AppleCtl"
 }
@@ -243,6 +313,8 @@ func parseEtcdData(apple *v1.Apple) (string, string) {
 
 	return strKey, strValue
 }
+
+
 
 // 路由
 func (a *AppleCtl) Build(goft *goft.Goft) {

@@ -15,7 +15,7 @@ func init() {
 	// 初始化一个对象
 	init := &appsv1.Car{
 		ApiVersion: "APPS/v1",
-		Kind: "CAR",
+		Kind: 		"CAR",
 		Metadata: appsv1.Metadata{
 			Name: "initCar",
 		},
@@ -29,7 +29,6 @@ func init() {
 		},
 	}
 	CarMap[init.Name] = init
-
 
 }
 

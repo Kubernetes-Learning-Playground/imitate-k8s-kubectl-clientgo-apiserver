@@ -24,7 +24,7 @@ func main() {
 		ApiVersion: "core/v1",
 		Kind: "APPLE",
 		Metadata: v1.Metadata{
-			Name: "apple1",
+			Name: "apple2111",
 		},
 		Spec: v1.AppleSpec{
 			Size: "apple1",
@@ -53,7 +53,7 @@ func main() {
 		ApiVersion: "core/v1",
 		Kind: "APPLE",
 		Metadata: v1.Metadata{
-			Name: "apple1",
+			Name: "apple-test11",
 		},
 		Spec: v1.AppleSpec{
 			Size: "apple1dddd",

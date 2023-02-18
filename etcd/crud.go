@@ -39,14 +39,22 @@ func Delete(key string, opts ...clientv3.OpOption) error {
 	return nil
 }
 
+type Watcher struct {
+	ResultChan WatchChan
+}
+
+func NewWatcher(resultChan WatchChan) *Watcher {
+	return &Watcher{ResultChan: resultChan}
+}
+
+type WatchChan <-chan clientv3.WatchResponse
+
 // Watch 监听
-func Watch(key string, opts ...clientv3.OpOption) {
+func Watch(key string, opts ...clientv3.OpOption) *Watcher {
+
 	ch := Cli.Watch(ctx, key, opts...)
-	for v := range ch {
-		for _, val := range v.Events {
-			PrintJSON(val)
-		}
-	}
+	watcher := NewWatcher(WatchChan(ch))
+	return watcher
 }
 
 func PrintJSON(v interface{}) {
