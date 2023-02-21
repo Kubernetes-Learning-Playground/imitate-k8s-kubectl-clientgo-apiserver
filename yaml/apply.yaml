@@ -1,0 +1,9 @@
+apiVersion: core/v1
+kind: APPLE
+metadata:
+  name: yaml-apple-test
+spec:
+  size: yaml-apple-test1
+  color: yaml-apple-test
+  place: yaml-apple-test
+  price: yaml-apple-test

@@ -1,0 +1,13 @@
+{
+  "apiVersion": "core/v1",
+  "kind": "APPLE",
+  "metadata": {
+    "name": "aaaaccccccdfjldjf"
+  },
+  "spec": {
+    "size": "ddddcc",
+    "color": "dddd",
+    "place": "ddd",
+    "price": "cccc"
+  }
+}

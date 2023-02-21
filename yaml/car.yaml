@@ -1,0 +1,8 @@
+apiVersion: apps/v1
+kind: CAR
+metadata:
+  name: yaml-car-test
+spec:
+  brand: yaml-car-test
+  color: yaml-car-test
+  price: yaml-car-test
