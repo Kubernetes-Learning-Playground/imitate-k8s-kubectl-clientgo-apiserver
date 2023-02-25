@@ -1,13 +1,15 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"github.com/shenyisyn/goft-gin/goft"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"k8s.io/klog/v2"
-	"practice_ctl/etcd"
 	v1 "practice_ctl/pkg/apis/core/v1"
+	"practice_ctl/pkg/etcd"
 )
 
 var AppleMap = map[string]*v1.Apple{}
@@ -130,51 +132,69 @@ func createOrUpdateApple(apple *v1.Apple) (*v1.Apple, error) {
 	return new, nil
 }
 
-func watchApple(applePrefix string)  {
+// ws连接，用于watch操错
+type WsClientApple struct {
+	conn *websocket.Conn
+	writeChan chan *v1.Apple // 写队列chan
+	closeChan chan struct{}  // 通知停止chan
+}
 
-	outputC := make(chan *v1.Apple)
+func NewWsClient(conn *websocket.Conn, writeChan chan *v1.Apple, closeChan chan struct{}) *WsClientApple {
+	return &WsClientApple{conn: conn, writeChan: writeChan, closeChan: closeChan}
+}
+
+// WriteLoop 发送给对应的客户端
+func (w *WsClientApple) WriteLoop() {
+	for {
+		select {
+		case msg := <-w.writeChan:
+			klog.Infof("从writeChan读中")
+			r, err := json.Marshal(msg)
+			if err != nil {
+				klog.Error(err)
+			}
+			klog.Infof("立即发送")
+			if err := w.conn.WriteMessage(websocket.TextMessage, r); err != nil {
+				klog.Errorf("发送错误")
+				w.conn.Close()
+				w.closeChan<- struct{}{}
+				break
+
+			}
+
+		}
+	}
+}
+
+// watchApple 从etcd中使用watch能力，当监听到有对象put或delete时，
+// watcher.ResultChan会接收到;并在内存中查找出真实对象，放入outputC中
+// 从outputC中放入 ws准备写入的writeChan中
+func (w *WsClientApple) watchApple(applePrefix string)  {
+
+	outputC := make(chan *v1.Apple, 1000)
 
 	watcher := etcd.Watch(applePrefix, clientv3.WithPrefix())
 	for {
 		select {
 		case v, ok := <-watcher.ResultChan:
 			if ok {
-
+				// TODO: 可以新增事件类型：put update delete等
 				for _, event := range v.Events {
 					fmt.Println("value: ", string(event.Kv.Value))
 					name := string(event.Kv.Value)
 					if apple, ok := AppleMap[name]; ok {
-						fmt.Println(apple.Name, apple.Kind, apple.Spec)
+						klog.Info(apple.Name, apple.Kind, apple.Spec)
+						klog.Infof("放入output中")
 						outputC <-apple
 					}
 				}
-
-
-			}
-
+			} 
+		case watchApple :=  <-outputC:
+			klog.Infof("放入writeChan中")
+			w.writeChan <-watchApple
 		}
 	}
-	//go func() {
-	//
-	//	for {
-	//		select {
-	//		case v, ok := <-watcher.ResultChan:
-	//			if ok {
-	//
-	//				for _, event := range v.Events {
-	//					name := string(event.Kv.Value)
-	//					if apple, ok := AppleMap[name]; ok {
-	//						outputC <-apple
-	//					}
-	//				}
-	//
-	//
-	//			}
-	//
-	//		}
-	//	}
-	//
-	//}()
+
 
 
 
@@ -293,15 +313,6 @@ func (a *AppleCtl) ListApple(c *gin.Context) goft.Json {
 }
 
 
-func (a *AppleCtl) WatchApple() {
-
-	watchApple("/APPLE")
-	// FIXME: watch接口目前还没有太多想法，如果后面调适通了，还是会遇到无法暴露http接口的问题，因为是流式的
-	//for i := range outputC {
-	//	fmt.Println(i.Name, i.Kind, i.Spec)
-	//}
-
-}
 
 func (a *AppleCtl) Name() string {
 	return "AppleCtl"
@@ -314,6 +325,21 @@ func parseEtcdData(apple *v1.Apple) (string, string) {
 	return strKey, strValue
 }
 
+// 使用ws连接实现类似watch的实时传递
+func(a *AppleCtl) WatchApple(c *gin.Context) (v goft.Void) {
+	client, err := Upgrader.Upgrade(c.Writer,c.Request,nil)  //升级
+	if err != nil {
+		klog.Errorf("ws connect error", err)
+		return
+	}
+	writeC := make(chan *v1.Apple)
+	stopC := make(chan struct{})
+	ws := NewWsClient(client, writeC, stopC)
+	go ws.WriteLoop()
+	go ws.watchApple("/APPLE")
+
+	return
+}
 
 
 // 路由
@@ -323,10 +349,11 @@ func (a *AppleCtl) Build(goft *goft.Goft) {
 	// POST  http://localhost:8080/v1/apple
 	// DELETE  http://localhost:8080/v1/apple
 	// PUT  http://localhost:8080/v1/apple
+	// Get  ws://localhost:8080/v1/apple/watch
 	goft.Handle("GET", "/v1/apple", a.GetApple)
 	goft.Handle("GET", "/v1/applelist", a.ListApple)
 	goft.Handle("POST", "/v1/apple", a.CreateApple)
 	goft.Handle("DELETE", "/v1/apple", a.DeleteApple)
 	goft.Handle("PUT", "/v1/apple", a.UpdateApple)
-
+	goft.Handle("GET", "/v1/apple/watch", a.WatchApple)
 }

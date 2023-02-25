@@ -14,7 +14,7 @@ type StoreCtlConfig struct {
 	Server string `yaml:"server"`
 }
 
-// LoadConfigFile 读取配置文件,模仿kubectl，默认在~/.blog/config
+// LoadConfigFile 读取配置文件,模仿kubectl，默认在~/.store/config
 func LoadConfigFile() *StoreCtlConfig {
 	home, err := os.UserHomeDir()
 	if err != nil {

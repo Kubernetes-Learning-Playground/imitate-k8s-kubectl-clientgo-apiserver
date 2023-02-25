@@ -4,10 +4,12 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.8.1
+	github.com/gorilla/websocket v1.5.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/shenyisyn/goft-gin v0.5.3
 	github.com/spf13/cobra v1.6.1
 	go.etcd.io/etcd/client/v3 v3.5.6
+	golang.org/x/net v0.3.1-0.20221206200815-1e63c2f08a10
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/cli-runtime v0.26.0
 	k8s.io/klog/v2 v2.80.1
@@ -71,7 +73,6 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.17.0 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
-	golang.org/x/net v0.3.1-0.20221206200815-1e63c2f08a10 // indirect
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/term v0.3.0 // indirect

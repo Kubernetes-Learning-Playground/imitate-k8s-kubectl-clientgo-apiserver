@@ -3,7 +3,6 @@ package test
 import (
 	"fmt"
 	v1 "practice_ctl/pkg/apis/core/v1"
-	"practice_ctl/pkg/storeapiserver/controllers"
 	"practice_ctl/pkg/util/stores"
 	"practice_ctl/pkg/util/stores/rest"
 	"testing"
@@ -40,8 +39,8 @@ func TestWatch(t *testing.T) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	cc := controllers.AppleCtl{}
+	//cc := controllers.AppleCtl{}
 
-	cc.WatchApple()
+
 
 }

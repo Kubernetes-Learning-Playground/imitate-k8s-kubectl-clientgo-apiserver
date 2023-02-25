@@ -67,13 +67,13 @@
 	}
 
 	appleUpdate, err := clientSet.CoreV1().Apple().Update(aaa)
-if err != nil {
+    if err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println("name: ", appleUpdate.Name,  "size: ", appleUpdate.Spec.Size, "color: ", appleUpdate.Spec.Color, "place: ", appleUpdate.Spec.Place, "price: ", appleUpdate.Spec.Price)
 
 	appleList, err := clientSet.CoreV1().Apple().List()
-if err != nil {
+    if err != nil {
 		log.Fatalln(err)
 	}
 	for _, apple := range appleList.Item {
@@ -87,7 +87,7 @@ if err != nil {
 底层使用client-go对资源进行CRUD操作。
 #### 使用方法
 1. 还没编译，所以执行使用 go run storectl.go，编译后放入执行的/bin目录中，可以使用storectl list xxxx
-2. 目前仅支持list create apply等操作。
+2. 目前仅支持list create apply delete等操作。
 3. 同时支持json yaml两种方式创建与修改。
 ```bigquery
 # 进入：cmd/storectl目录中

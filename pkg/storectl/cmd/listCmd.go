@@ -12,8 +12,6 @@ import (
 	"time"
 )
 
-// TODO: 命令行实现
-
 
 
 

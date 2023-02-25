@@ -40,9 +40,10 @@ func RunCmd() {
 	listCmd := ListCommand(configRes)
 	createCmd := CreateCommand(configRes)
 	applyCmd := ApplyCommand(configRes)
+	deleteCmd := DeleteCommand(configRes)
 
 	//加入子命令
-	cmd.AddCommand(versionCmd, listCmd, createCmd, applyCmd)
+	cmd.AddCommand(versionCmd, listCmd, createCmd, applyCmd, deleteCmd)
 	err := cmd.Execute()
 	if err != nil {
 		log.Fatalln(err)

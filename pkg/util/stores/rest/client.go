@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"golang.org/x/net/websocket"
 	"net/http"
 )
 
@@ -17,6 +18,7 @@ var _ Interface = &RESTClient{}	// 查看是否实现此接口
 // RESTClient 底层对象
 type RESTClient struct {
 	*http.Client
+	Ws       *websocket.Conn
 	BasePath string
 }
 

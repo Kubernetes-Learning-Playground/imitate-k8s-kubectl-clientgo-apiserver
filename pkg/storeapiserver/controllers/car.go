@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/shenyisyn/goft-gin/goft"
 	"k8s.io/klog/v2"
-	"practice_ctl/etcd"
 	appsv1 "practice_ctl/pkg/apis/apps/v1"
+	"practice_ctl/pkg/etcd"
 )
 
 var CarMap = map[string]*appsv1.Car{}
