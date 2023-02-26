@@ -124,13 +124,14 @@ func main() {
 ![](https://github.com/googs1025/imitate-k8s-kubectl-clientSet/blob/main/img/%E6%B5%81%E7%A8%8B%E5%9B%BE11.jpg?raw=true)
 底层使用client-go对资源进行CRUD操作。
 #### 使用方法
-1. 还没编译，所以执行使用 go run storectl.go，编译后放入执行的/bin目录中，可以使用storectl list xxxx
+1. 还没编译，所以执行使用 go run storectl.go xxxx 测试，编译后放入执行的/bin目录中，可以使用storectl list xxxx
 2. 目前仅支持list create apply delete等操作。
 3. 同时支持json yaml两种方式创建与修改。
 ```bigquery
+# json yaml 范例文件 json目录 yaml目录
 # 进入：cmd/storectl目录中
 # 获取命令： storectl list apples 
-➜  storectl git:(main) ✗ go run storectl.go list apples aaa.json
+➜  storectl git:(main) ✗ go run storectl.go apply cars ../../json/car.json
 +-----------+-----------+-----------+-----------+----------+
 | APPLE名称 |   PRICE   |   PLACE   |   COLOR   |   SIZE   |
 +-----------+-----------+-----------+-----------+----------+
@@ -140,7 +141,6 @@ func main() {
 # 创建命令 ： 类似 storectl create apples aaa.json
 ➜  storectl git:(main) ✗ go run storectl.go create apples aaa.json
 name:dddafjjhadsklfhaaaa is created
-
 
 ```
 
