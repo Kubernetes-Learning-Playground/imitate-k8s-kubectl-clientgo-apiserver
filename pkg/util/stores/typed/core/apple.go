@@ -18,14 +18,13 @@ func newApple(c rest.Interface) AppleInterface {
 	return &apple{client: c}
 }
 
-// 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
 type AppleInterface interface {
 	Get(name string) (ver *v1.Apple, err error)
 	List() (appleList *v1.AppleList, err error)
 	Create(apple *v1.Apple) (ver *v1.Apple, err error)
 	Delete(name string) (err error)
 	Update(apple *v1.Apple) (ver *v1.Apple, err error)
-
+	Watch() *rest.Request
 }
 
 type apple struct {
@@ -75,6 +74,12 @@ func (v *apple) Update(apple *v1.Apple) (ver *v1.Apple, err error) {
 	return
 }
 
+func (v *apple) Watch() *rest.Request {
+
+	res := v.client.Watch().WsPath("/v1/apple/watch").WatchApple("/APPLE")
+
+	return res
+}
 
 
 

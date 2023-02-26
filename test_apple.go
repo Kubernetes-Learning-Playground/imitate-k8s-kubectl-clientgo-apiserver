@@ -19,6 +19,7 @@ func main() {
 	}
 	clientSet := stores.NewForConfig(config)
 
+
 	// 创建操作
 	a := &v1.Apple{
 		ApiVersion: "core/v1",
@@ -76,5 +77,6 @@ func main() {
 	for _, apple := range appleList.Item {
 		fmt.Println(apple.Name)
 	}
+
 
 }

@@ -11,6 +11,7 @@ type Interface interface {
 	Put() *Request
 	Delete() *Request
 	Patch() *Request
+	Watch() *Request
 }
 
 var _ Interface = &RESTClient{}	// 查看是否实现此接口
@@ -46,6 +47,10 @@ func (R *RESTClient) Patch() *Request {
 func (R *RESTClient) Delete() *Request {
 
 	return NewRequest(R).Verb(http.MethodDelete)
+}
+
+func (R *RESTClient) Watch() *Request {
+	return NewRequest(R).Verb(http.MethodGet)
 }
 
 // NewRESTClient 构建方法

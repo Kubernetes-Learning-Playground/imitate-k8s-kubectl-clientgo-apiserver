@@ -3,8 +3,11 @@ package rest
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/gorilla/websocket"
 	"io"
+	"k8s.io/klog/v2"
 	"net/http"
+	"net/url"
 	appsv1 "practice_ctl/pkg/apis/apps/v1"
 	v1 "practice_ctl/pkg/apis/core/v1"
 	"strings"
@@ -14,13 +17,16 @@ import (
 type Request struct {
 	c       *RESTClient
 	req 	*http.Request
-
+	ws      *websocket.Conn
+	WChan   chan interface{}
 }
 
 func NewRequest(c *RESTClient) *Request {
 	req, _ := http.NewRequest("", "", nil)
-	return &Request{c: c,
+	return &Request{
+		c: c,
 		req: req,
+		WChan: make(chan interface{}, 10),
 
 	} //默认是根
 }
@@ -159,6 +165,47 @@ func (r *Request) DeleteApple(name string) *Request {
 		q.Add(k, v)
 	}
 	r.req.URL.RawQuery = q.Encode()
+
+	return r
+}
+
+func (r *Request) WsPath(p string) *Request {
+	str := strings.Split(r.c.BasePath, "://")
+	r.req.URL.Scheme = "ws"
+	r.req.URL.Host = str[1]
+
+	r.req.URL.Path = p
+	return r
+}
+
+func (r *Request) WatchApple(prefix string) *Request {
+
+
+	u := url.URL{Scheme: "ws", Host: "localhost:8080", Path: "/v1/apple/watch"}
+	klog.Info("ws url:", u.String())
+	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil) // 服务端的对象
+	r.ws = c
+	if err != nil {
+		klog.Fatal("dial:", err)
+	}
+	//defer c.Close()
+
+	done := make(chan struct{})
+
+	go func() {
+		defer close(done)
+		for {
+			_, message, err := r.ws.ReadMessage()
+			//klog.Infof(string(message))
+			if err != nil {
+				klog.Errorf("read error:", err)
+				return
+			}
+
+			//klog.Infof("recv: ", message)
+			r.WChan <- message
+		}
+	}()
 
 	return r
 }
