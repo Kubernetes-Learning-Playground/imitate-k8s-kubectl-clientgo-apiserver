@@ -139,7 +139,7 @@ type WsClientApple struct {
 	closeChan chan struct{}  // 通知停止chan
 }
 
-func NewWsClient(conn *websocket.Conn, writeChan chan *v1.Apple, closeChan chan struct{}) *WsClientApple {
+func NewWsClientApple(conn *websocket.Conn, writeChan chan *v1.Apple, closeChan chan struct{}) *WsClientApple {
 	return &WsClientApple{conn: conn, writeChan: writeChan, closeChan: closeChan}
 }
 
@@ -194,10 +194,6 @@ func (w *WsClientApple) watchApple(applePrefix string)  {
 			w.writeChan <-watchApple
 		}
 	}
-
-
-
-
 
 }
 
@@ -327,6 +323,7 @@ func parseEtcdData(apple *v1.Apple) (string, string) {
 
 // 使用ws连接实现类似watch的实时传递
 func(a *AppleCtl) WatchApple(c *gin.Context) (v goft.Void) {
+	// 升级请求
 	client, err := Upgrader.Upgrade(c.Writer,c.Request,nil)  //升级
 	if err != nil {
 		klog.Errorf("ws connect error", err)
@@ -334,7 +331,8 @@ func(a *AppleCtl) WatchApple(c *gin.Context) (v goft.Void) {
 	}
 	writeC := make(chan *v1.Apple)
 	stopC := make(chan struct{})
-	ws := NewWsClient(client, writeC, stopC)
+	ws := NewWsClientApple(client, writeC, stopC)
+	// 启动两个goroutine实现
 	go ws.WriteLoop()
 	go ws.watchApple("/APPLE")
 

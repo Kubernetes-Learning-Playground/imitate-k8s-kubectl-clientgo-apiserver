@@ -17,6 +17,8 @@ import (
 type Request struct {
 	c       *RESTClient
 	req 	*http.Request
+
+	url     url.URL
 	ws      *websocket.Conn
 	WChan   chan interface{}
 }
@@ -117,6 +119,41 @@ func (r *Request) ListCar() *Request {
 	return r
 }
 
+func (r *Request) WatchCar() *Request {
+
+
+	klog.Info("ws url:", r.url.String())
+	// 创建ws连接
+	c, _, err := websocket.DefaultDialer.Dial(r.url.String(), nil)
+	// 赋值
+	r.ws = c
+	if err != nil {
+		klog.Fatal("dial:", err)
+	}
+	//defer c.Close()
+
+	done := make(chan struct{})
+
+	go func() {
+		defer close(done)
+		for {
+			// 读取对象
+			_, message, err := r.ws.ReadMessage()
+
+			if err != nil {
+				klog.Errorf("read error:", err)
+				return
+			}
+
+			// 放入chan中
+			r.WChan <- message
+		}
+	}()
+
+	return r
+}
+
+
 
 func (r *Request) GetAppleName(name string) *Request {
 
@@ -171,19 +208,20 @@ func (r *Request) DeleteApple(name string) *Request {
 
 func (r *Request) WsPath(p string) *Request {
 	str := strings.Split(r.c.BasePath, "://")
-	r.req.URL.Scheme = "ws"
-	r.req.URL.Host = str[1]
 
-	r.req.URL.Path = p
+	u := url.URL{Scheme: "ws", Host: str[1], Path: p}
+	r.url = u
+
 	return r
 }
 
-func (r *Request) WatchApple(prefix string) *Request {
+func (r *Request) WatchApple() *Request {
 
 
-	u := url.URL{Scheme: "ws", Host: "localhost:8080", Path: "/v1/apple/watch"}
-	klog.Info("ws url:", u.String())
-	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil) // 服务端的对象
+	klog.Info("ws url:", r.url.String())
+	// 创建ws连接
+	c, _, err := websocket.DefaultDialer.Dial(r.url.String(), nil)
+	// 赋值
 	r.ws = c
 	if err != nil {
 		klog.Fatal("dial:", err)
@@ -195,14 +233,15 @@ func (r *Request) WatchApple(prefix string) *Request {
 	go func() {
 		defer close(done)
 		for {
+			// 读取对象
 			_, message, err := r.ws.ReadMessage()
-			//klog.Infof(string(message))
+
 			if err != nil {
 				klog.Errorf("read error:", err)
 				return
 			}
 
-			//klog.Infof("recv: ", message)
+			// 放入chan中
 			r.WChan <- message
 		}
 	}()

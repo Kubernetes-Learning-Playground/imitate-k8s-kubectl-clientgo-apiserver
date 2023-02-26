@@ -25,7 +25,7 @@ type CarInterface interface {
 	Create(apple *appsv1.Car) (ver *appsv1.Car, err error)
 	Delete(name string) (err error)
 	Update(apple *appsv1.Car) (ver *appsv1.Car, err error)
-
+	Watch() *rest.Request
 }
 
 type car struct {
@@ -76,7 +76,14 @@ func (v *car) Update(car *appsv1.Car) (ver *appsv1.Car, err error) {
 }
 
 
+func (v *car) Watch() *rest.Request {
 
+	res := v.client.
+		Watch().WsPath("/v1/car/watch").
+		WatchCar()
+
+	return res
+}
 
 
 var _ CarInterface = &car{}

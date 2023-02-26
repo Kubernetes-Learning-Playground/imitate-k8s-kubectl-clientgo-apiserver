@@ -1,10 +1,13 @@
 package controllers
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"github.com/shenyisyn/goft-gin/goft"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"k8s.io/klog/v2"
 	appsv1 "practice_ctl/pkg/apis/apps/v1"
 	"practice_ctl/pkg/etcd"
@@ -236,6 +239,89 @@ func (a *CarCtl) ListCar(c *gin.Context) goft.Json {
 
 }
 
+// 使用ws连接实现类似watch的实时传递
+func(a *CarCtl) WatchCar(c *gin.Context) (v goft.Void) {
+	// 升级请求
+	client, err := Upgrader.Upgrade(c.Writer,c.Request,nil)  //升级
+	if err != nil {
+		klog.Errorf("ws connect error", err)
+		return
+	}
+	writeC := make(chan *appsv1.Car)
+	stopC := make(chan struct{})
+	ws := NewWsClientCar(client, writeC, stopC)
+	// 启动两个goroutine实现
+	go ws.WriteLoop()
+	go ws.watchCar("/CAR")
+
+	return
+}
+
+// ws连接，用于watch操错
+type WsClientCar struct {
+	conn *websocket.Conn
+	writeChan chan *appsv1.Car // 写队列chan
+	closeChan chan struct{}  // 通知停止chan
+}
+
+func NewWsClientCar(conn *websocket.Conn, writeChan chan *appsv1.Car, closeChan chan struct{}) *WsClientCar {
+	return &WsClientCar{conn: conn, writeChan: writeChan, closeChan: closeChan}
+}
+
+// WriteLoop 发送给对应的客户端
+func (w *WsClientCar) WriteLoop() {
+	for {
+		select {
+		case msg := <-w.writeChan:
+			klog.Infof("从writeChan读中")
+			r, err := json.Marshal(msg)
+			if err != nil {
+				klog.Error(err)
+			}
+			klog.Infof("立即发送")
+			if err := w.conn.WriteMessage(websocket.TextMessage, r); err != nil {
+				klog.Errorf("发送错误")
+				w.conn.Close()
+				w.closeChan<- struct{}{}
+				break
+
+			}
+
+		}
+	}
+}
+
+// watchCar 从etcd中使用watch能力，当监听到有对象put或delete时，
+// watcher.ResultChan会接收到;并在内存中查找出真实对象，放入outputC中
+// 从outputC中放入 ws准备写入的writeChan中
+func (w *WsClientCar) watchCar(applePrefix string)  {
+
+	outputC := make(chan *appsv1.Car, 1000)
+
+	watcher := etcd.Watch(applePrefix, clientv3.WithPrefix())
+	for {
+		select {
+		case v, ok := <-watcher.ResultChan:
+			if ok {
+				// TODO: 可以新增事件类型：put update delete等
+				for _, event := range v.Events {
+					fmt.Println("value: ", string(event.Kv.Value))
+					name := string(event.Kv.Value)
+					if car, ok := CarMap[name]; ok {
+						klog.Info(car.Name, car.Kind, car.Spec)
+						klog.Infof("放入output中")
+						outputC <-car
+					}
+				}
+			}
+		case watchApple :=  <-outputC:
+			klog.Infof("放入writeChan中")
+			w.writeChan <-watchApple
+		}
+	}
+
+}
+
 func (a *CarCtl) Name() string {
 	return "CarCtl"
 }
@@ -252,6 +338,7 @@ func (a *CarCtl) Build(goft *goft.Goft) {
 	goft.Handle("POST", "/v1/car", a.CreateCar)
 	goft.Handle("DELETE", "/v1/car", a.DeleteCar)
 	goft.Handle("PUT", "/v1/car", a.UpdateCar)
+	goft.Handle("GET", "/v1/car/watch", a.WatchCar)
 
 }
 

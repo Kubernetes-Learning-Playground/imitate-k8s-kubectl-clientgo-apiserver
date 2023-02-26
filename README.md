@@ -13,12 +13,13 @@
 3. 资源对象改成声明式api的形式，每次更新底层都是使用createOrUpdate方法
 
 **TODO** 未来提供scheme注册表。
+**TODO** 实现informer机制。
 ### clientSet 风格客户端封装
 如下图所示：基于net/http基础库的封装，并依据k8s风格封装http CRUD接口。
 
 ![](https://github.com/googs1025/imitate-k8s-kubectl-clientSet/blob/main/img/%E6%B5%81%E7%A8%8B%E5%9B%BE.jpg?raw=true)
 
-功能：目前实现apple资源对象(ex: pod)，并实现**GET LIST DELETE CREATE UPDATE** 方法
+功能：目前实现apple car资源对象(ex: pod)，并实现**GET LIST DELETE CREATE UPDATE WATCH** 方法
 
 #### 范例文件
 ```bigquery
@@ -81,6 +82,43 @@
 	}
 ```
 
+#### watch 操作
+```
+func main() {
+	//// 配置文件
+	config := &rest.Config{
+		Host:    fmt.Sprintf("http://localhost:8080"),
+		Timeout: time.Second,
+	}
+	clientSet := stores.NewForConfig(config)
+
+	// watch apple对象
+	res := clientSet.CoreV1().Apple().Watch()
+	for i := range res.WChan {
+		r := i.([]byte)
+		var resApple v1.Apple
+		err := json.Unmarshal(r, &resApple)
+		if err != nil {
+			klog.Error(err)
+			return
+		}
+		klog.Info(resApple)
+	}
+
+	// watch car对象
+	res1 := clientSet.AppsV1().Car().Watch()
+	for i := range res1.WChan {
+		r := i.([]byte)
+		var resCar appsv1.Car
+		err := json.Unmarshal(r, &resCar)
+		if err != nil {
+			klog.Error(err)
+			return
+		}
+		klog.Info(resCar)
+	}
+}
+```
 
 ### kubectl 风格命令行封装
 ![](https://github.com/googs1025/imitate-k8s-kubectl-clientSet/blob/main/img/%E6%B5%81%E7%A8%8B%E5%9B%BE11.jpg?raw=true)

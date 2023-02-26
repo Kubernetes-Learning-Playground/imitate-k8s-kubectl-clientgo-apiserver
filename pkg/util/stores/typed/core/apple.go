@@ -76,7 +76,9 @@ func (v *apple) Update(apple *v1.Apple) (ver *v1.Apple, err error) {
 
 func (v *apple) Watch() *rest.Request {
 
-	res := v.client.Watch().WsPath("/v1/apple/watch").WatchApple("/APPLE")
+	res := v.client.
+		Watch().WsPath("/v1/apple/watch").
+		WatchApple()
 
 	return res
 }

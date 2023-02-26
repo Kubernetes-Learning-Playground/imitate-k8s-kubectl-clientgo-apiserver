@@ -23,12 +23,3 @@ func (r Result) Into(v interface{})(err error) {
 	return err
 }
 
-func (r Result) WsInto(v interface{})(err error) {
-	if r.err != nil {
-		return r.err
-	}
-
-	body, err := ioutil.ReadAll(r.rsp.Body)
-	err = json.Unmarshal(body, v)
-	return err
-}
