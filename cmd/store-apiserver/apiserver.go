@@ -6,11 +6,11 @@ import (
 )
 
 func main() {
+
 	goft.Ignite().Config().
 		Mount("",
 			&controllers.VersionCtl{},
 			&controllers.AppleCtl{},
 			&controllers.CarCtl{},
-		).
-		LaunchWithPort(8080)
+		).LaunchWithPort(8080)
 }
