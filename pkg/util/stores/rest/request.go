@@ -20,7 +20,13 @@ type Request struct {
 
 	url     url.URL
 	ws      *websocket.Conn
+	// TODO: 这里需要修改
 	WChan   chan interface{}
+}
+
+type WsChan struct {
+	Object interface{}
+	Type   string
 }
 
 func NewRequest(c *RESTClient) *Request {

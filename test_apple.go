@@ -23,7 +23,7 @@ func main() {
 	// 创建操作
 	a := &v1.Apple{
 		ApiVersion: "core/v1",
-		Kind: "APPLE",
+		Kind: "Apple",
 		Metadata: v1.Metadata{
 			Name: "applexxxxxxx",
 		},
@@ -52,7 +52,7 @@ func main() {
 
 	aaa := &v1.Apple{
 		ApiVersion: "core/v1",
-		Kind: "APPLE",
+		Kind: "Apple",
 		Metadata: v1.Metadata{
 			Name: "apple-test11",
 		},
@@ -78,5 +78,9 @@ func main() {
 		fmt.Println(apple.Name)
 	}
 
+	err = clientSet.CoreV1().Apple().Delete("applexxxxxxx")
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 }

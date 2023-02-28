@@ -247,12 +247,12 @@ func(a *CarCtl) WatchCar(c *gin.Context) (v goft.Void) {
 		klog.Errorf("ws connect error", err)
 		return
 	}
-	writeC := make(chan *appsv1.Car)
+	writeC := make(chan *WatchCar)
 	stopC := make(chan struct{})
 	ws := NewWsClientCar(client, writeC, stopC)
 	// 启动两个goroutine实现
 	go ws.WriteLoop()
-	go ws.watchCar("/CAR")
+	go ws.watchCar("/Car")
 
 	return
 }
@@ -260,11 +260,11 @@ func(a *CarCtl) WatchCar(c *gin.Context) (v goft.Void) {
 // ws连接，用于watch操错
 type WsClientCar struct {
 	conn *websocket.Conn
-	writeChan chan *appsv1.Car // 写队列chan
+	writeChan chan *WatchCar // 写队列chan
 	closeChan chan struct{}  // 通知停止chan
 }
 
-func NewWsClientCar(conn *websocket.Conn, writeChan chan *appsv1.Car, closeChan chan struct{}) *WsClientCar {
+func NewWsClientCar(conn *websocket.Conn, writeChan chan *WatchCar, closeChan chan struct{}) *WsClientCar {
 	return &WsClientCar{conn: conn, writeChan: writeChan, closeChan: closeChan}
 }
 
@@ -291,12 +291,18 @@ func (w *WsClientCar) WriteLoop() {
 	}
 }
 
+type WatchCar struct {
+	Car  *appsv1.Car
+	// 区分事件类型 目前就是put delete
+	ObjectType string
+}
+
 // watchCar 从etcd中使用watch能力，当监听到有对象put或delete时，
 // watcher.ResultChan会接收到;并在内存中查找出真实对象，放入outputC中
 // 从outputC中放入 ws准备写入的writeChan中
 func (w *WsClientCar) watchCar(applePrefix string)  {
 
-	outputC := make(chan *appsv1.Car, 1000)
+	outputC := make(chan *WatchCar, 1000)
 
 	watcher := etcd.Watch(applePrefix, clientv3.WithPrefix())
 	for {
@@ -307,11 +313,30 @@ func (w *WsClientCar) watchCar(applePrefix string)  {
 				for _, event := range v.Events {
 					fmt.Println("value: ", string(event.Kv.Value))
 					name := string(event.Kv.Value)
-					if car, ok := CarMap[name]; ok {
-						klog.Info(car.Name, car.Kind, car.Spec)
-						klog.Infof("放入output中")
-						outputC <-car
+					// 区分事件类型
+					var objectType string
+					if event.Type == clientv3.EventTypePut {
+						objectType = "put"
+						if car, ok := CarMap[name]; ok {
+							klog.Info(car.Name, car.Kind, car.Spec)
+							klog.Infof("放入output中")
+							res := &WatchCar{
+								Car: car,
+								ObjectType: objectType,
+							}
+							outputC <-res
+						}
+					} else if event.Type == clientv3.EventTypeDelete {
+						objectType = "delete"
+						klog.Info("delete: ", objectType)
+						res := &WatchCar{
+							Car: nil,
+							ObjectType: objectType,
+						}
+						outputC <-res
 					}
+
+
 				}
 			}
 		case watchApple :=  <-outputC:

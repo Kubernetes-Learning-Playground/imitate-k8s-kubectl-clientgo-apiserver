@@ -135,11 +135,11 @@ func createOrUpdateApple(apple *v1.Apple) (*v1.Apple, error) {
 // ws连接，用于watch操错
 type WsClientApple struct {
 	conn *websocket.Conn
-	writeChan chan *v1.Apple // 写队列chan
+	writeChan chan *WatchApple // 写队列chan
 	closeChan chan struct{}  // 通知停止chan
 }
 
-func NewWsClientApple(conn *websocket.Conn, writeChan chan *v1.Apple, closeChan chan struct{}) *WsClientApple {
+func NewWsClientApple(conn *websocket.Conn, writeChan chan *WatchApple, closeChan chan struct{}) *WsClientApple {
 	return &WsClientApple{conn: conn, writeChan: writeChan, closeChan: closeChan}
 }
 
@@ -166,12 +166,19 @@ func (w *WsClientApple) WriteLoop() {
 	}
 }
 
+type WatchApple struct {
+	Apple  *v1.Apple
+	// 区分事件类型 目前就是put delete
+	ObjectType string
+}
+
+
 // watchApple 从etcd中使用watch能力，当监听到有对象put或delete时，
 // watcher.ResultChan会接收到;并在内存中查找出真实对象，放入outputC中
 // 从outputC中放入 ws准备写入的writeChan中
 func (w *WsClientApple) watchApple(applePrefix string)  {
 
-	outputC := make(chan *v1.Apple, 1000)
+	outputC := make(chan *WatchApple, 1000)
 
 	watcher := etcd.Watch(applePrefix, clientv3.WithPrefix())
 	for {
@@ -182,11 +189,29 @@ func (w *WsClientApple) watchApple(applePrefix string)  {
 				for _, event := range v.Events {
 					fmt.Println("value: ", string(event.Kv.Value))
 					name := string(event.Kv.Value)
-					if apple, ok := AppleMap[name]; ok {
-						klog.Info(apple.Name, apple.Kind, apple.Spec)
-						klog.Infof("放入output中")
-						outputC <-apple
+					// 区分事件类型
+					var objectType string
+					if event.Type == clientv3.EventTypePut {
+						objectType = "put"
+						if apple, ok := AppleMap[name]; ok {
+							klog.Info(apple.Name, apple.Kind, apple.Spec)
+							klog.Infof("放入output中")
+							res := &WatchApple{
+								Apple: apple,
+								ObjectType: objectType,
+							}
+							outputC <-res
+						}
+					} else if event.Type == clientv3.EventTypeDelete {
+						objectType = "delete"
+						res := &WatchApple{
+							Apple: nil,
+							ObjectType: objectType,
+						}
+						outputC <-res
 					}
+
+
 				}
 			} 
 		case watchApple :=  <-outputC:
@@ -329,12 +354,12 @@ func(a *AppleCtl) WatchApple(c *gin.Context) (v goft.Void) {
 		klog.Errorf("ws connect error", err)
 		return
 	}
-	writeC := make(chan *v1.Apple)
+	writeC := make(chan *WatchApple)
 	stopC := make(chan struct{})
 	ws := NewWsClientApple(client, writeC, stopC)
 	// 启动两个goroutine实现
 	go ws.WriteLoop()
-	go ws.watchApple("/APPLE")
+	go ws.watchApple("/Apple")
 
 	return
 }
