@@ -11,9 +11,10 @@
     b. apps：可以看成汽车类资源
 2. 提供每种资源的create update delete get list 方法，目前支持list create apply等命令行操作
 3. 资源对象改成声明式api的形式，每次更新底层都是使用createOrUpdate方法
-
+### RoadMap 
 **TODO** 未来提供scheme注册表。
-**TODO** 实现informer机制。
+
+**TODO** 实现informer机制。(时间周期长，预计缓更)
 ### clientSet 风格客户端封装
 如下图所示：基于net/http基础库的封装，并依据k8s风格封装http CRUD接口。
 
