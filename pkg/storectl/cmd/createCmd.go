@@ -34,7 +34,7 @@ func CreateCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 
 	CreateCmd = &cobra.Command{
 		Use:          "create [flags]",
-		Short:        "create [flags]]",
+		Short:        "create [flags]",
 		Example:      "storectl create apples",
 		SilenceUsage: true,
 		// args[0] 区分资源， args[1] json路径

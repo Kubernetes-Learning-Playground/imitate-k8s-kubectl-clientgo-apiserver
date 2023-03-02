@@ -43,6 +43,10 @@ func RunCmd() {
 	deleteCmd := DeleteCommand(configRes)
 
 	//加入子命令
+
+	deleteCmd.Flags().StringVar(&file,"file","","storectl delete cars --file xxxxx.yaml  ")
+
+
 	cmd.AddCommand(versionCmd, listCmd, createCmd, applyCmd, deleteCmd)
 	err := cmd.Execute()
 	if err != nil {
@@ -50,6 +54,7 @@ func RunCmd() {
 	}
 }
 
+var file string
 
 var cfgFlags *genericclioptions.ConfigFlags
 

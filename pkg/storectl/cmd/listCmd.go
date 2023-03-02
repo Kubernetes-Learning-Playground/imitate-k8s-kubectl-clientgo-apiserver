@@ -31,7 +31,7 @@ func ListCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 
 	ListCmd = &cobra.Command{
 		Use:          "list [flags]",
-		Short:        "list [flags]]",
+		Short:        "list [flags]",
 		Example:      "storectl list apples",
 		SilenceUsage: true,
 		RunE: func(c *cobra.Command, args []string) error {

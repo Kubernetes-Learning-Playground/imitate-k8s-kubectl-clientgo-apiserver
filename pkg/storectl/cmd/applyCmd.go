@@ -27,7 +27,7 @@ func ApplyCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 
 	CreateCmd = &cobra.Command{
 		Use:          "apply [flags]",
-		Short:        "apply [flags]]",
+		Short:        "apply [flags]",
 		Example:      "storectl apply apples",
 		SilenceUsage: true,
 		// args[0] 区分资源， args[1] json路径
