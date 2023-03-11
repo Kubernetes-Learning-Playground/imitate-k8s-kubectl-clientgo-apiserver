@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/shenyisyn/goft-gin/goft"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"k8s.io/klog/v2"
 	appsv1 "practice_ctl/pkg/apis/apps/v1"
@@ -169,78 +168,90 @@ func updateCar(car *appsv1.Car) (*appsv1.Car, error) {
 type CarCtl struct {
 }
 
+func NewCarCtl() *CarCtl {
+	return &CarCtl{}
+}
 
-func (a *CarCtl) GetCar(c *gin.Context) goft.Json {
+
+func (a *CarCtl) GetCar(c *gin.Context) {
 	name := c.Query("name")
 
 	res, err := getCar(name)
 	if err != nil {
 		fmt.Println("get err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
 
-
-	return res
+	c.JSON(200, res)
 }
 
-func (a *CarCtl) CreateCar(c *gin.Context) goft.Json {
+func (a *CarCtl) CreateCar(c *gin.Context) {
 	var r *appsv1.Car
 	if err := c.ShouldBindJSON(&r); err != nil {
 		fmt.Println("bind json err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
 	res, err := createOrUpdateCar(r)
 	if err != nil {
 		fmt.Println("create err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
-
-	return res
+	c.JSON(200, res)
+	return
 
 }
 
-func (a *CarCtl) UpdateCar(c *gin.Context) goft.Json {
+func (a *CarCtl) UpdateCar(c *gin.Context) {
 	var r *appsv1.Car
 	if err := c.ShouldBindJSON(&r); err != nil {
 		fmt.Println("bind json err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
 	res, err := createOrUpdateCar(r)
 	if err != nil {
 		fmt.Println("update err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
 
-	return res
+	c.JSON(200, res)
+	return
 
 }
 
-func (a *CarCtl) DeleteCar(c *gin.Context) goft.Json {
+func (a *CarCtl) DeleteCar(c *gin.Context) {
 	name := c.Query("name")
 
 	err := deleteCar(name)
 	if err != nil {
 		fmt.Println("get err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
 
-
-	return nil
+	c.JSON(200, gin.H{"ok": "ok"})
+	return
 }
 
-func (a *CarCtl) ListCar(c *gin.Context) goft.Json {
+func (a *CarCtl) ListCar(c *gin.Context) {
 
 	res, err := listCar()
 	if err != nil {
 		fmt.Println("list err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
-	return res
+	c.JSON(200, res)
+	return
 
 }
 
 // 使用ws连接实现类似watch的实时传递
-func(a *CarCtl) WatchCar(c *gin.Context) (v goft.Void) {
+func(a *CarCtl) WatchCar(c *gin.Context) {
 	// 升级请求
 	client, err := Upgrader.Upgrade(c.Writer,c.Request,nil)  //升级
 	if err != nil {
@@ -344,26 +355,6 @@ func (w *WsClientCar) watchCar(applePrefix string)  {
 			w.writeChan <-watchApple
 		}
 	}
-
-}
-
-func (a *CarCtl) Name() string {
-	return "CarCtl"
-}
-
-// 路由
-func (a *CarCtl) Build(goft *goft.Goft) {
-	// GET  http://localhost:8080/v1/car
-	// GET  http://localhost:8080/v1/carlist
-	// POST  http://localhost:8080/v1/car
-	// DELETE  http://localhost:8080/v1/car
-	// PUT  http://localhost:8080/v1/car
-	goft.Handle("GET", "/v1/car", a.GetCar)
-	goft.Handle("GET", "/v1/carlist", a.ListCar)
-	goft.Handle("POST", "/v1/car", a.CreateCar)
-	goft.Handle("DELETE", "/v1/car", a.DeleteCar)
-	goft.Handle("PUT", "/v1/car", a.UpdateCar)
-	goft.Handle("GET", "/v1/car/watch", a.WatchCar)
 
 }
 

@@ -15,7 +15,7 @@ import (
 func main() {
 	// 配置文件
 	config := &rest.Config{
-		Host:    fmt.Sprintf("http://localhost:8080"),
+		Host:    fmt.Sprintf("http://localhost:8888"),
 		Timeout: time.Second,
 	}
 	clientSet := stores.NewForConfig(config)
@@ -44,11 +44,11 @@ func main() {
 	}
 	fmt.Println("name:", c.Name,  "brand:", c.Spec.Brand, "color:", c.Spec.Color, "price:", c.Spec.Price)
 
-	//car1, err := clientSet.AppsV1().Car().Get("aaaacccccc11")
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//fmt.Println("get name: ", car1.Name)
+	car1, err := clientSet.AppsV1().Car().Get("car1")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("get name: ", car1.Name)
 
 
 	aaa := &appsv1.Car{
@@ -71,13 +71,13 @@ func main() {
 	}
 	fmt.Println("name: ", carUpdate.Name, "color: ", carUpdate.Spec.Color, "brand: ", carUpdate.Spec.Brand, "price: ", carUpdate.Spec.Price)
 
-	//carList, err := clientSet.AppsV1().Car().List()
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//for _, car := range carList.Item {
-	//	fmt.Println(car.Name)
-	//}
+	carList, err := clientSet.AppsV1().Car().List()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	for _, car := range carList.Item {
+		fmt.Println(car.Name)
+	}
 
 	err = clientSet.AppsV1().Car().Delete("car1")
 	if err != nil {

@@ -14,7 +14,7 @@ import (
 func main() {
 	//// 配置文件
 	config := &rest.Config{
-		Host:    fmt.Sprintf("http://localhost:8080"),
+		Host:    fmt.Sprintf("http://localhost:8888"),
 		Timeout: time.Second,
 	}
 	clientSet := stores.NewForConfig(config)
@@ -23,27 +23,14 @@ func main() {
 	res := clientSet.CoreV1().Apple().Watch()
 	for i := range res.WChan {
 		r := i.([]byte)
+		klog.Info(string(r))
 		var resApple controllers.WatchApple
 		err := json.Unmarshal(r, &resApple)
 		if err != nil {
 			klog.Error(err)
 			return
 		}
-		klog.Info(resApple.Apple, resApple.ObjectType)
+		klog.Info("res: ", resApple.Apple, "event type: ", resApple.ObjectType)
 	}
 
-	//// watch car对象
-	//res1 := clientSet.AppsV1().Car().Watch()
-	//for i := range res1.WChan {
-	//	r := i.([]byte)
-	//	klog.Info(string(r))
-	//	var resCar controllers.WatchCar
-	//	err := json.Unmarshal(r, &resCar)
-	//	if err != nil {
-	//		klog.Error(err)
-	//		return
-	//	}
-	//	klog.Info(resCar.Car, resCar.ObjectType)
-	//
-	//}
 }
