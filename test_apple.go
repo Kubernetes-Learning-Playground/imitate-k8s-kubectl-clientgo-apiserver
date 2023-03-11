@@ -14,7 +14,7 @@ import (
 func main() {
 	// 配置文件
 	config := &rest.Config{
-		Host:    fmt.Sprintf("http://localhost:8080"),
+		Host:    fmt.Sprintf("http://localhost:8888"),
 		Timeout: time.Second,
 	}
 	clientSet := stores.NewForConfig(config)

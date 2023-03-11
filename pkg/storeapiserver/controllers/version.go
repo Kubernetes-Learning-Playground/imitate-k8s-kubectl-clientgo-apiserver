@@ -16,8 +16,12 @@ func NewServerVersionInfo() *v1.Version {
 type VersionCtl struct {
 }
 
-func (v *VersionCtl) Version(c *gin.Context) goft.Json {
-	return NewServerVersionInfo()
+func NewVersionCtl() *VersionCtl {
+	return &VersionCtl{}
+}
+
+func (v *VersionCtl) Version(c *gin.Context) {
+	c.JSON(200, NewServerVersionInfo())
 }
 
 func (v *VersionCtl) Name() string {

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/shenyisyn/goft-gin/goft"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"k8s.io/klog/v2"
 	v1 "practice_ctl/pkg/apis/core/v1"
@@ -263,81 +262,88 @@ func (w *WsClientApple) watchApple(applePrefix string)  {
 type AppleCtl struct {
 }
 
+func NewAppleCtl() *AppleCtl {
+	return &AppleCtl{}
+}
 
-func (a *AppleCtl) GetApple(c *gin.Context) goft.Json {
+
+func (a *AppleCtl) GetApple(c *gin.Context) {
 	name := c.Query("name")
 
 	res, err := getApple(name)
 	if err != nil {
 		fmt.Println("get err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
 
-
-	return res
+	c.JSON(200, res)
 }
 
-func (a *AppleCtl) CreateApple(c *gin.Context) goft.Json {
+func (a *AppleCtl) CreateApple(c *gin.Context) {
 	var r *v1.Apple
 	if err := c.ShouldBindJSON(&r); err != nil {
 		fmt.Println("bind json err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
 	res, err := createOrUpdateApple(r)
 	if err != nil {
 		fmt.Println("create err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
 
-	return res
-
+	c.JSON(200, res)
+	return
 }
 
-func (a *AppleCtl) UpdateApple(c *gin.Context) goft.Json {
+func (a *AppleCtl) UpdateApple(c *gin.Context) {
 	var r *v1.Apple
 	if err := c.ShouldBindJSON(&r); err != nil {
 		fmt.Println("bind json err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
 	res, err := createOrUpdateApple(r)
 	if err != nil {
 		fmt.Println("update err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
 
-	return res
+	c.JSON(200, res)
+	return
 
 }
 
-func (a *AppleCtl) DeleteApple(c *gin.Context) goft.Json {
+func (a *AppleCtl) DeleteApple(c *gin.Context) {
 	name := c.Query("name")
 
 	err := deleteApple(name)
 	if err != nil {
 		fmt.Println("get err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
 
-
-	return nil
+	c.JSON(200, gin.H{"ok": "ok"})
+	return
 }
 
-func (a *AppleCtl) ListApple(c *gin.Context) goft.Json {
+func (a *AppleCtl) ListApple(c *gin.Context) {
 
 	res, err := listApple()
 	if err != nil {
 		fmt.Println("list err!")
-		return gin.H{"code": "400", "error": err}
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
-	return res
+	c.JSON(200, res)
+	return
 
 }
 
-
-
-func (a *AppleCtl) Name() string {
-	return "AppleCtl"
-}
 
 func parseEtcdData(apple *v1.Apple) (string, string) {
 	strKey := "/" + apple.Kind + "/" + apple.Name
@@ -347,7 +353,7 @@ func parseEtcdData(apple *v1.Apple) (string, string) {
 }
 
 // 使用ws连接实现类似watch的实时传递
-func(a *AppleCtl) WatchApple(c *gin.Context) (v goft.Void) {
+func(a *AppleCtl) WatchApple(c *gin.Context) {
 	// 升级请求
 	client, err := Upgrader.Upgrade(c.Writer,c.Request,nil)  //升级
 	if err != nil {
@@ -364,19 +370,3 @@ func(a *AppleCtl) WatchApple(c *gin.Context) (v goft.Void) {
 	return
 }
 
-
-// 路由
-func (a *AppleCtl) Build(goft *goft.Goft) {
-	// GET  http://localhost:8080/v1/apple
-	// GET  http://localhost:8080/v1/applelist
-	// POST  http://localhost:8080/v1/apple
-	// DELETE  http://localhost:8080/v1/apple
-	// PUT  http://localhost:8080/v1/apple
-	// Get  ws://localhost:8080/v1/apple/watch
-	goft.Handle("GET", "/v1/apple", a.GetApple)
-	goft.Handle("GET", "/v1/applelist", a.ListApple)
-	goft.Handle("POST", "/v1/apple", a.CreateApple)
-	goft.Handle("DELETE", "/v1/apple", a.DeleteApple)
-	goft.Handle("PUT", "/v1/apple", a.UpdateApple)
-	goft.Handle("GET", "/v1/apple/watch", a.WatchApple)
-}
