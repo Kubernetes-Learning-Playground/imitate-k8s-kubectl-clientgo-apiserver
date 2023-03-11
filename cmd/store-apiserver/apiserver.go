@@ -2,15 +2,35 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"practice_ctl/pkg/storeapiserver/aggregator"
 	"practice_ctl/pkg/storeapiserver/controllers"
 )
 
 func main() {
 	router := gin.New()
-
 	defer func() {
 		_ = router.Run(":8888")
 	}()
+
+
+	agg := aggregator.NewAggregationApiServer()
+	// 使用中间件的方式
+	router.Use(func(c *gin.Context) {
+		agg.SearchHandler(c)
+	})
+	// 给aggregator使用的注册接口
+	router.POST("/register", func(c *gin.Context) {
+		req := struct {
+			Path string `json:"path"`
+			Host string `json:"host"`
+		}{}
+		_ = c.ShouldBindJSON(&req)
+		agg.AggregationMap[req.Path] = req.Host
+		c.JSON(200, agg.AggregationMap)
+	})
+
+
+
 
 	register(router)
 }
@@ -34,6 +54,7 @@ func register(router *gin.Engine) {
 
 	{
 		// version
+		//
 		r.GET("/version", versionCtl.Version)
 
 		// apple
