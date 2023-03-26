@@ -1,6 +1,7 @@
 package apps
 
 import (
+	"practice_ctl/pkg/apimachinery/runtime"
 	appsv1 "practice_ctl/pkg/apis/apps/v1"
 	"practice_ctl/pkg/util/stores/rest"
 )
@@ -22,9 +23,9 @@ func newCar(c rest.Interface) CarInterface {
 type CarInterface interface {
 	Get(name string) (ver *appsv1.Car, err error)
 	List() (appleList *appsv1.CarList, err error)
-	Create(apple *appsv1.Car) (ver *appsv1.Car, err error)
+	Create(apple runtime.Object) (ver *appsv1.Car, err error)
 	Delete(name string) (err error)
-	Update(apple *appsv1.Car) (ver *appsv1.Car, err error)
+	Update(apple runtime.Object) (ver *appsv1.Car, err error)
 	Watch() *rest.Request
 }
 
@@ -45,10 +46,10 @@ func (v *car) Get(name string) (ver *appsv1.Car, err error) {
 }
 
 // Post 创建apple资源
-func (v *car) Create(car *appsv1.Car) (ver *appsv1.Car, err error) {
+func (v *car) Create(car runtime.Object) (ver *appsv1.Car, err error) {
 	ver = &appsv1.Car{}
 	err = v.client.
-		Post().Path("/v1/car").CreateCar(car).
+		Post().Path("/v1/car").CreateCar(car.(*appsv1.Car)).
 		Do().Into(ver)
 	return
 }
@@ -67,10 +68,10 @@ func (v *car) Delete(name string) (err error) {
 	return
 }
 
-func (v *car) Update(car *appsv1.Car) (ver *appsv1.Car, err error) {
+func (v *car) Update(car runtime.Object) (ver *appsv1.Car, err error) {
 	ver = &appsv1.Car{}
 	err = v.client.
-		Put().Path("/v1/car").UpdateCar(car).
+		Put().Path("/v1/car").UpdateCar(car.(*appsv1.Car)).
 		Do().Into(ver)
 	return
 }

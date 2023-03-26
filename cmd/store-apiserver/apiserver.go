@@ -54,7 +54,6 @@ func register(router *gin.Engine) {
 
 	{
 		// version
-		//
 		r.GET("/version", versionCtl.Version)
 
 		// apple

@@ -1,6 +1,6 @@
 {
   "apiVersion": "core/v1",
-  "kind": "APPLE",
+  "kind": "Apple",
   "metadata": {
     "name": "aaaaccccccdfjldjf"
   },

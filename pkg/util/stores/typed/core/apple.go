@@ -1,6 +1,7 @@
 package core
 
 import (
+	"practice_ctl/pkg/apimachinery/runtime"
 	v1 "practice_ctl/pkg/apis/core/v1"
 	"practice_ctl/pkg/util/stores/rest"
 )
@@ -21,9 +22,9 @@ func newApple(c rest.Interface) AppleInterface {
 type AppleInterface interface {
 	Get(name string) (ver *v1.Apple, err error)
 	List() (appleList *v1.AppleList, err error)
-	Create(apple *v1.Apple) (ver *v1.Apple, err error)
+	Create(apple runtime.Object) (ver *v1.Apple, err error)
 	Delete(name string) (err error)
-	Update(apple *v1.Apple) (ver *v1.Apple, err error)
+	Update(apple runtime.Object) (ver *v1.Apple, err error)
 	Watch() *rest.Request
 }
 
@@ -44,10 +45,10 @@ func (v *apple) Get(name string) (ver *v1.Apple, err error) {
 }
 
 // Post 创建apple资源
-func (v *apple) Create(apple *v1.Apple) (ver *v1.Apple, err error) {
+func (v *apple) Create(apple runtime.Object) (ver *v1.Apple, err error) {
 	ver = &v1.Apple{}
 	err = v.client.
-		Post().Path("/v1/apple").CreateApple(apple).
+		Post().Path("/v1/apple").CreateApple(apple.(*v1.Apple)).
 		Do().Into(ver)
 	return
 }
@@ -66,10 +67,11 @@ func (v *apple) Delete(name string) (err error) {
 	return
 }
 
-func (v *apple) Update(apple *v1.Apple) (ver *v1.Apple, err error) {
+func (v *apple) Update(apple runtime.Object) (ver *v1.Apple, err error) {
 	ver = &v1.Apple{}
+
 	err = v.client.
-		Put().Path("/v1/apple").UpdateApple(apple).
+		Put().Path("/v1/apple").UpdateApple(apple.(*v1.Apple)).
 		Do().Into(ver)
 	return
 }

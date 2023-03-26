@@ -7,11 +7,12 @@ import (
 	"github.com/gorilla/websocket"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"k8s.io/klog/v2"
+	"practice_ctl/pkg/apimachinery/runtime"
 	v1 "practice_ctl/pkg/apis/core/v1"
 	"practice_ctl/pkg/etcd"
 )
 
-var AppleMap = map[string]*v1.Apple{}
+var AppleMap = map[string]runtime.Object{}
 
 func init() {
 	// 初始化一个对象
@@ -49,18 +50,19 @@ func getApple(name string) (*v1.Apple, error) {
 		klog.Info("get key: ", strKey)
 		if err != nil {
 			klog.Errorf("get key error: ", strKey, err)
-			return apple, nil
+			return nil, err
 		}
 
-		return apple, nil
+		return apple.(*v1.Apple), nil
 	}
 	return nil, nil
 }
 
 func deleteApple(name string) error {
-	if apple, ok := AppleMap[name]; ok {
-		strKey, _ := parseEtcdData(apple)
+	if a, ok := AppleMap[name]; ok {
+		strKey, _ := parseEtcdData(a)
 		klog.Info("delete key: ", strKey)
+		apple := a.(*v1.Apple)
 		err := etcd.Delete(strKey)
 		delete(AppleMap, apple.Name)
 		if err != nil {
@@ -76,14 +78,16 @@ func deleteApple(name string) error {
 func listApple() (*v1.AppleList, error) {
 	appleList := &v1.AppleList{}
 	for _, v := range AppleMap {
-		appleList.Item = append(appleList.Item, v)
+		appleList.Item = append(appleList.Item, v.(*v1.Apple))
 	}
 
 	return appleList, nil
 }
 
-func createOrUpdateApple(apple *v1.Apple) (*v1.Apple, error) {
-	if old, ok := AppleMap[apple.Name]; ok {
+func createOrUpdateApple(o runtime.Object) (*v1.Apple, error) {
+	apple := o.(*v1.Apple)
+	if o, ok := AppleMap[apple.Name]; ok {
+		old := o.(*v1.Apple)
 		klog.Infof("find the apple %v, and update it!", old.Name)
 		old.Name = apple.Name
 		old.Spec.Price = apple.Spec.Price
@@ -192,7 +196,8 @@ func (w *WsClientApple) watchApple(applePrefix string)  {
 					var objectType string
 					if event.Type == clientv3.EventTypePut {
 						objectType = "put"
-						if apple, ok := AppleMap[name]; ok {
+						if a, ok := AppleMap[name]; ok {
+							apple := a.(*v1.Apple)
 							klog.Info(apple.Name, apple.Kind, apple.Spec)
 							klog.Infof("放入output中")
 							res := &WatchApple{
@@ -345,7 +350,8 @@ func (a *AppleCtl) ListApple(c *gin.Context) {
 }
 
 
-func parseEtcdData(apple *v1.Apple) (string, string) {
+func parseEtcdData(o runtime.Object) (string, string) {
+	apple := o.(*v1.Apple)
 	strKey := "/" + apple.Kind + "/" + apple.Name
 	strValue := apple.Name
 

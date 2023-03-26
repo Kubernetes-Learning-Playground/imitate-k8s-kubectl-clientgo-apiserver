@@ -8,11 +8,12 @@ import (
 	"github.com/gorilla/websocket"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"k8s.io/klog/v2"
+	"practice_ctl/pkg/apimachinery/runtime"
 	appsv1 "practice_ctl/pkg/apis/apps/v1"
 	"practice_ctl/pkg/etcd"
 )
 
-var CarMap = map[string]*appsv1.Car{}
+var CarMap = map[string]runtime.Object{}
 
 func init() {
 	// 初始化一个对象
@@ -32,20 +33,29 @@ func init() {
 		},
 	}
 	CarMap[init.Name] = init
-
+	strKey, strValue := parseEtcdDataCar(init)
+	_ = etcd.Put(strKey, strValue)
 }
 
 
 func getCar(name string) (*appsv1.Car, error) {
 	if car, ok := CarMap[name]; ok {
-		return car, nil
+		strKey, _ := parseEtcdDataCar(car)
+		err := etcd.Get(strKey)
+		klog.Info("get key: ", strKey)
+		if err != nil {
+			klog.Errorf("get key error: ", strKey, err)
+			return nil, err
+		}
+		return car.(*appsv1.Car), nil
 	}
 	return nil, nil
 }
 
 func deleteCar(name string) error {
-	if car, ok := CarMap[name]; ok {
-		strKey, _ := parseEtcdDataCar(car)
+	if c, ok := CarMap[name]; ok {
+		strKey, _ := parseEtcdDataCar(c)
+		car := c.(*appsv1.Car)
 		klog.Info("delete key: ", strKey)
 		delete(CarMap, car.Name)
 		err := etcd.Delete(strKey)
@@ -62,28 +72,31 @@ func deleteCar(name string) error {
 func listCar() (*appsv1.CarList, error) {
 	carList := &appsv1.CarList{}
 	for _, v := range CarMap {
-		carList.Item = append(carList.Item, v)
+
+		carList.Item = append(carList.Item, v.(*appsv1.Car))
 	}
 
 	return carList, nil
 }
 
-func parseEtcdDataCar(car *appsv1.Car) (string, string) {
+func parseEtcdDataCar(o runtime.Object) (string, string) {
+	car := o.(*appsv1.Car)
 	strKey := "/" + car.Kind + "/" + car.Name
 	strValue := car.Name
 
 	return strKey, strValue
 }
 
-func createOrUpdateCar(car *appsv1.Car) (*appsv1.Car, error) {
-	if old, ok := CarMap[car.Name]; ok {
+func createOrUpdateCar(o runtime.Object) (*appsv1.Car, error) {
+	car := o.(*appsv1.Car)
+	if o, ok := CarMap[car.Name]; ok {
+		old := o.(*appsv1.Car)
 		klog.Infof("find the apple %v, and update it!", old.Name)
 		old.Name = car.Name
 		old.Spec.Price = car.Spec.Price
 		old.Spec.Brand = car.Spec.Brand
 		old.Spec.Color = car.Spec.Color
 		old.Status.Status = "updated"
-
 		strKey, strValue := parseEtcdDataCar(car)
 		klog.Info("update key: ", strKey)
 		err := etcd.Put(strKey, strValue)
@@ -114,12 +127,19 @@ func createOrUpdateCar(car *appsv1.Car) (*appsv1.Car, error) {
 
 	// 存入map
 	CarMap[car.Name] = new
-
+	strKey, strValue := parseEtcdDataCar(new)
+	klog.Info("create key: ", strKey)
+	err := etcd.Put(strKey, strValue)
+	if err != nil {
+		klog.Errorf("create key error: ", strKey, err)
+		return new, err
+	}
 	return new, nil
 }
 
 
-func createCar(car *appsv1.Car) (*appsv1.Car, error) {
+func createCar(o runtime.Object) (*appsv1.Car, error) {
+	car := o.(*appsv1.Car)
 	// 如果查到就抛错
 	if _, ok := CarMap[car.Name]; ok {
 		return nil, errors.New("this car is created ")
@@ -148,9 +168,11 @@ func createCar(car *appsv1.Car) (*appsv1.Car, error) {
 
 }
 
-func updateCar(car *appsv1.Car) (*appsv1.Car, error) {
+func updateCar(o runtime.Object) (*appsv1.Car, error) {
+	car := o.(*appsv1.Car)
 	// 重新赋值
-	if old, ok := CarMap[car.Name]; ok {
+	if o, ok := CarMap[car.Name]; ok {
+		old := interface{}(o).(*appsv1.Car)
 		old.Name = car.Name
 		old.Spec.Price = car.Spec.Price
 		old.Spec.Brand = car.Spec.Brand
@@ -328,7 +350,8 @@ func (w *WsClientCar) watchCar(applePrefix string)  {
 					var objectType string
 					if event.Type == clientv3.EventTypePut {
 						objectType = "put"
-						if car, ok := CarMap[name]; ok {
+						if o, ok := CarMap[name]; ok {
+							car := o.(*appsv1.Car)
 							klog.Info(car.Name, car.Kind, car.Spec)
 							klog.Infof("放入output中")
 							res := &WatchCar{

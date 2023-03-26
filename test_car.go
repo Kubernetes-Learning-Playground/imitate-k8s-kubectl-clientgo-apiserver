@@ -83,5 +83,13 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	//fmt.Println(testObject(aaa))
+
 }
 
+//func testObject(object runtime.Object) string{
+//	r := object.(*appsv1.Car)
+//	fmt.Println(r)
+//	return "aaa"
+//}
