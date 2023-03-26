@@ -10,6 +10,7 @@ import (
 	"k8s.io/klog/v2"
 	"practice_ctl/pkg/apimachinery/runtime"
 	appsv1 "practice_ctl/pkg/apis/apps/v1"
+	metav1 "practice_ctl/pkg/apis/meta"
 	"practice_ctl/pkg/etcd"
 )
 
@@ -18,9 +19,11 @@ var CarMap = map[string]runtime.Object{}
 func init() {
 	// 初始化一个对象
 	init := &appsv1.Car{
-		ApiVersion: "apps/v1",
-		Kind: 		"Car",
-		Metadata: appsv1.Metadata{
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: "apps/v1",
+			Kind: "Car",
+		},
+		ObjectMeta: metav1.ObjectMeta{
 			Name: "initCar",
 		},
 		Spec: appsv1.CarSpec{
@@ -109,9 +112,11 @@ func createOrUpdateCar(o runtime.Object) (*appsv1.Car, error) {
 	klog.Infof("not find this car, and create it!")
 
 	new := &appsv1.Car{
-		ApiVersion: "apps/v1",
-		Kind: "Car",
-		Metadata: appsv1.Metadata{
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: "apps/v1",
+			Kind: "Car",
+		},
+		ObjectMeta: metav1.ObjectMeta{
 			Name: car.Name,
 		},
 		Spec: appsv1.CarSpec{
@@ -145,9 +150,11 @@ func createCar(o runtime.Object) (*appsv1.Car, error) {
 		return nil, errors.New("this car is created ")
 	}
 	new := &appsv1.Car{
-		ApiVersion: "apps/v1",
-		Kind: "Car",
-		Metadata: appsv1.Metadata{
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: "apps/v1",
+			Kind: "Car",
+		},
+		ObjectMeta: metav1.ObjectMeta{
 			Name: car.Name,
 		},
 		Spec: appsv1.CarSpec{

@@ -2,12 +2,12 @@
   "apiVersion": "core/v1",
   "kind": "Apple",
   "metadata": {
-    "name": "aaaaccccccdfjldjf"
+    "name": "apple-json"
   },
   "spec": {
-    "size": "ddddcc",
-    "color": "dddd",
-    "place": "ddd",
-    "price": "cccc"
+    "size": "apple-json",
+    "color": "apple-json",
+    "place": "apple-json",
+    "price": "apple-json"
   }
 }

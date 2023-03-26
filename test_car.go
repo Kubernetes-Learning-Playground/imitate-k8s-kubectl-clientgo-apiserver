@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	metav1 "practice_ctl/pkg/apis/meta"
 	"time"
 
 	appsv1 "practice_ctl/pkg/apis/apps/v1"
@@ -22,9 +23,11 @@ func main() {
 
 	// 创建操作
 	a := &appsv1.Car{
-		ApiVersion: "apps/v1",
-		Kind: "Car",
-		Metadata: appsv1.Metadata{
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: "apps/v1",
+			Kind: "Car",
+		},
+		ObjectMeta: metav1.ObjectMeta{
 			Name: "car1",
 		},
 		Spec: appsv1.CarSpec{
@@ -52,9 +55,11 @@ func main() {
 
 
 	aaa := &appsv1.Car{
-		ApiVersion: "apps/v1",
-		Kind: "Car",
-		Metadata: appsv1.Metadata{
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: "apps/v1",
+			Kind: "Car",
+		},
+		ObjectMeta: metav1.ObjectMeta{
 			Name: "car1",
 		},
 		Spec: appsv1.CarSpec{
