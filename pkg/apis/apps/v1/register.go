@@ -3,6 +3,7 @@ package v1
 import (
 	"practice_ctl/pkg/apimachinery/runtime"
 	"practice_ctl/pkg/apimachinery/runtime/schema"
+	metav1 "practice_ctl/pkg/apis/meta"
 	"strings"
 )
 
@@ -52,11 +53,17 @@ var (
 
 func addKnownTypes(scheme *runtime.Scheme) error {
 	f := &Car{
-		ApiVersion: "apps/v1",
-		Kind: "Car",
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: "apps/v1",
+			Kind: "Car",
+		},
+
 	}
 	scheme.AddKnownTypes(SchemeGroupVersion, f)
+
 	return nil
+
+
 }
 
 func init() {

@@ -1,16 +1,13 @@
 package v1
 
+import metav1 "practice_ctl/pkg/apis/meta"
+
 type Apple struct {
-	ApiVersion string       `json:"apiVersion" yaml:"apiVersion"`
-	Kind 	   string  		`json:"kind" yaml:"kind"`
-	Metadata   				`json:"metadata" yaml:"metadata"`
+	metav1.TypeMeta   `json:""`
+	metav1.ObjectMeta   `json:"metadata" yaml:"metadata"`
 	Spec 	   AppleSpec    `json:"spec" yaml:"spec"`
 	Status     AppleStatus  `json:"status" yaml:"status"`
 
-}
-
-type Metadata struct {
-	Name string `json:"name" yaml:"name"`
 }
 
 type AppleSpec struct {

@@ -9,6 +9,7 @@ import (
 	"k8s.io/klog/v2"
 	"practice_ctl/pkg/apimachinery/runtime"
 	v1 "practice_ctl/pkg/apis/core/v1"
+	metav1 "practice_ctl/pkg/apis/meta"
 	"practice_ctl/pkg/etcd"
 )
 
@@ -17,9 +18,11 @@ var AppleMap = map[string]runtime.Object{}
 func init() {
 	// 初始化一个对象
 	init := &v1.Apple{
-		ApiVersion: "core/v1",
-		Kind: "Apple",
-		Metadata: v1.Metadata{
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: "core/v1",
+			Kind: "Apple",
+		},
+		ObjectMeta: metav1.ObjectMeta{
 			Name: "initApple",
 		},
 		Spec: v1.AppleSpec{
@@ -111,9 +114,11 @@ func createOrUpdateApple(o runtime.Object) (*v1.Apple, error) {
 		Status: "created",
 	}
 	new := &v1.Apple{
-		ApiVersion: apple.ApiVersion,
-		Kind: apple.Kind,
-		Metadata: v1.Metadata{
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: apple.ApiVersion,
+			Kind: apple.Kind,
+		},
+		ObjectMeta: metav1.ObjectMeta{
 			Name: apple.Name,
 		},
 		Spec: apple.Spec,

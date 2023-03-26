@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	metav1 "practice_ctl/pkg/apis/meta"
 
 	"log"
 	v1 "practice_ctl/pkg/apis/core/v1"
@@ -22,9 +23,11 @@ func main() {
 
 	// 创建操作
 	a := &v1.Apple{
-		ApiVersion: "core/v1",
-		Kind: "Apple",
-		Metadata: v1.Metadata{
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: "core/v1",
+			Kind: "Apple",
+		},
+		ObjectMeta: metav1.ObjectMeta{
 			Name: "applexxxxxxx",
 		},
 		Spec: v1.AppleSpec{
@@ -51,9 +54,11 @@ func main() {
 	fmt.Println("name: ", apple1.Name)
 
 	aaa := &v1.Apple{
-		ApiVersion: "core/v1",
-		Kind: "Apple",
-		Metadata: v1.Metadata{
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: "core/v1",
+			Kind: "Apple",
+		},
+		ObjectMeta: metav1.ObjectMeta{
 			Name: "apple-test11",
 		},
 		Spec: v1.AppleSpec{
