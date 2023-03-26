@@ -11,10 +11,15 @@
     b. apps：可以看成汽车类资源
 2. 提供每种资源的create update delete get list 方法，目前支持list create apply等命令行操作
 3. 资源对象改成声明式api的形式，每次更新底层都是使用createOrUpdate方法
+4. 提供scheme注册表与GVK功能。
 ### RoadMap 
-**TODO** 未来提供scheme注册表。
-**TODO** 新增aggregator apiserver功能
+
+**TODO** 提供scheme注册表。(已支持简单功能)
+
+**TODO** 新增aggregator apiserver功能。(已支持)
+
 **TODO** 实现informer机制。(时间周期长，预计缓更)
+
 ### clientSet 风格客户端封装
 如下图所示：基于net/http基础库的封装，并依据k8s风格封装http CRUD接口。
 
@@ -126,7 +131,7 @@ func main() {
 底层使用client-go对资源进行CRUD操作。
 #### 使用方法
 1. 还没编译，所以执行使用 go run storectl.go xxxx 测试，编译后放入执行的/bin目录中，可以使用storectl list xxxx
-2. 目前仅支持list create apply delete等操作。
+2. 目前仅支持list create apply delete describe等操作。
 3. 同时支持json yaml两种方式创建与修改。
 ```bigquery
 # json yaml 范例文件 json目录 yaml目录
