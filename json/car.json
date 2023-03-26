@@ -1,12 +1,12 @@
 {
   "apiVersion": "apps/v1",
-  "kind": "CAR",
+  "kind": "Car",
   "metadata": {
-    "name": "aaaacccccc11"
+    "name": "car-json"
   },
   "spec": {
-    "brand": "dddddddd",
-    "color": "dddddddd",
-    "price": "ccccddd"
+    "brand": "car-json1",
+    "color": "car-json",
+    "price": "car-json"
   }
 }
