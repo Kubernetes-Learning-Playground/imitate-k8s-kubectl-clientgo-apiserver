@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	v1 "practice_ctl/pkg/apis/core/v1"
 	metav1 "practice_ctl/pkg/apis/meta"
 
+	//metav1 "practice_ctl/pkg/apis/meta"
+
 	"log"
-	v1 "practice_ctl/pkg/apis/core/v1"
+	//v1 "practice_ctl/pkg/apis/core/v1"
 	"practice_ctl/pkg/util/stores"
 	"practice_ctl/pkg/util/stores/rest"
 	"time"
@@ -28,7 +31,7 @@ func main() {
 			Kind: "Apple",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "applexxxxxxx",
+			Name: "apple-test11",
 		},
 		Spec: v1.AppleSpec{
 			Size: "apple1",

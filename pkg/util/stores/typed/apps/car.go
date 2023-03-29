@@ -22,10 +22,10 @@ func newCar(c rest.Interface) CarInterface {
 
 type CarInterface interface {
 	Get(name string) (ver *appsv1.Car, err error)
-	List() (appleList *appsv1.CarList, err error)
-	Create(apple runtime.Object) (ver *appsv1.Car, err error)
+	List() (carList *appsv1.CarList, err error)
+	Create(car runtime.Object) (ver *appsv1.Car, err error)
 	Delete(name string) (err error)
-	Update(apple runtime.Object) (ver *appsv1.Car, err error)
+	Update(car runtime.Object) (ver *appsv1.Car, err error)
 	Watch() *rest.Request
 }
 
