@@ -17,9 +17,8 @@ func TestApple(t *testing.T) {
 	}
 
 	var gvk1 = schema.GroupVersionKind{Group: "", Version: "v1", Kind: "Apple"}
-	res1, err := testScheme.GetObjectKind(gvk1)
-	fmt.Println(res1, err)
+	res1 := testScheme.GetObjectKind(gvk1)
+	fmt.Println(res1)
+	fmt.Println(res1.GroupVersionKind())
 
-	aa, _ := res1.GetObjectKind(gvk1)
-	fmt.Println(aa.GroupVersionKind())
 }
