@@ -3,15 +3,17 @@ module practice_ctl
 go 1.18
 
 require (
+	github.com/emicklei/go-restful/v3 v3.9.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/gorilla/websocket v1.5.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/shenyisyn/goft-gin v0.5.3
 	github.com/spf13/cobra v1.6.1
 	go.etcd.io/etcd/client/v3 v3.5.6
-	golang.org/x/net v0.3.1-0.20221206200815-1e63c2f08a10
+	golang.org/x/net v0.7.0
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/cli-runtime v0.26.0
+	k8s.io/cli-runtime v0.25.0
+	k8s.io/component-base v0.25.3
 	k8s.io/klog/v2 v2.80.1
 )
 
@@ -20,7 +22,6 @@ require (
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
@@ -71,22 +72,22 @@ require (
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.17.0 // indirect
+	go.uber.org/zap v1.19.0 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b // indirect
-	golang.org/x/sys v0.3.0 // indirect
-	golang.org/x/term v0.3.0 // indirect
-	golang.org/x/text v0.5.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/term v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c // indirect
-	google.golang.org/grpc v1.41.0 // indirect
+	google.golang.org/genproto v0.0.0-20220502173005-c8bf987b8c21 // indirect
+	google.golang.org/grpc v1.49.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/api v0.26.0 // indirect
-	k8s.io/apimachinery v0.26.0 // indirect
-	k8s.io/client-go v0.26.0 // indirect
+	k8s.io/api v0.26.3 // indirect
+	k8s.io/apimachinery v0.26.3 // indirect
+	k8s.io/client-go v0.26.3 // indirect
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
 	k8s.io/utils v0.0.0-20221107191617-1a15be271d1d // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
