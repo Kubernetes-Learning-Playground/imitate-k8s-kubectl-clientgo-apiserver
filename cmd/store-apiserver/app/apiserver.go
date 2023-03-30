@@ -7,13 +7,15 @@ import (
 	"k8s.io/klog/v2"
 	"net/http"
 	"practice_ctl/pkg/storeapiserver/controllers"
+	"practice_ctl/pkg/storeapiserver/filters"
+	"practice_ctl/pkg/util/helpers"
 )
 
 type APIServer struct {
 	ServerCount int
 
 	Server *http.Server
-
+	AggregaterServer *AggregationApiServer
 	//Config *apiserverconfig.Config
 	Config *Config
 
@@ -29,7 +31,8 @@ type Config struct {
 
 type ServerRunOptions struct {
 	Config
-	port string
+	Port string
+	EtcdEndpoint string
 }
 
 func NewServerRunOptions() *ServerRunOptions {
@@ -43,14 +46,19 @@ type completedServerRunOptions struct {
 
 func Complete(s *ServerRunOptions) (completedServerRunOptions, error) {
 	var options completedServerRunOptions
-	s.port = "8888"
-
+	if s.Port == "" {
+		s.Port = "8888"
+	}
+	if s.EtcdEndpoint == "" {
+		s.EtcdEndpoint = "127.0.0.1:2379"
+	}
 
 	options.ServerRunOptions = s
 
 	return options, nil
 }
 
+// TODO: 处理启动的配置校验逻辑
 func (s *ServerRunOptions) Validate() []error {
 	var errs []error
 
@@ -77,11 +85,12 @@ func Run(completeOptions completedServerRunOptions, stopCh <-chan struct{}) erro
 func (s *ServerRunOptions) NewAPIServer(stopCh <-chan struct{}) (*APIServer, error) {
 	apiServer := &APIServer{
 		Config:     &s.Config,
+		AggregaterServer: NewAggregationApiServer(),
 	}
 
 
 	server := &http.Server{
-		Addr: fmt.Sprintf(":%v", s.port),
+		Addr: fmt.Sprintf(":%v", s.Port),
 	}
 
 	apiServer.Server = server
@@ -104,64 +113,93 @@ func (s *APIServer) PrepareRun(stopCh <-chan struct{}) error {
 	s.Server.Handler = s.container
 
 	// 注册服务
-	s.installAIscopeAPIs()
+	s.installAllAPIs()
 
 	// handler chain
-	s.buildHandlerChain(stopCh)
+	s.buildHandlerChain(s.Server.Handler)
 
 	return nil
 }
 
-func (s *APIServer) installAIscopeAPIs() {
-	err := AddToContainer(s.container)
-	err = AddKVServiceToContainer(s.container)
-	if err != nil {
-		panic(err)
-	}
+// installAllAPIs 注册api
+func (s *APIServer) installAllAPIs() {
+	helpers.Must(s.AddCommonApiToContainer(s.container))
+	helpers.Must(s.AddServiceV1ApiToContainer(s.container))
 }
 
-func AddToContainer(container *restful.Container) error {
+func (s *APIServer) AddCommonApiToContainer(container *restful.Container) error {
 	ws := new(restful.WebService)
 
-	ws.Route(ws.GET("/hello").
+	// 测试接口
+	ws.Route(ws.GET("/test").
 		To(func(request *restful.Request, response *restful.Response) {
-
-
 			response.WriteAsJson("hello world")
 		})).
 		Doc("hello world")
+	// ping接口
+	ws.Route(ws.GET("/ping").To(func(request *restful.Request, response *restful.Response) {
+		response.WriteAsJson("pong")
+	})).Doc("keepalive ping")
+	// 注册接口
+	ws.Route(ws.POST("/register").To(func(request *restful.Request, response *restful.Response) {
+		req := struct {
+			Path string `json:"path"`
+			Host string `json:"host"`
+		}{}
+		if err := request.ReadEntity(&req); err != nil {
+			fmt.Println("bind json err!")
+			errResp := struct {
+				Code int    `json:"code"`
+				Err  string `json:"err"`
+			}{Code: 400, Err: err.Error()}
+			response.WriteEntity(errResp)
+		}
+
+		s.AggregaterServer.AggregationMap[req.Path] = req.Host
+		resp := struct {
+			Code int    `json:"code"`
+			Res  interface{} `json:"res"`
+		}{Code: 200, Res: req}
+		response.WriteAsJson(resp)
+
+	}))
+
 
 	container.Add(ws)
 
 	return nil
 }
 
-func AddKVServiceToContainer(container *restful.Container) error {
-	kvWs := new(restful.WebService)
-	kvWs.Path("/v1").Consumes(restful.MIME_JSON).Produces(restful.MIME_JSON)
+func (s *APIServer) AddServiceV1ApiToContainer(container *restful.Container) error {
+	serviceWs := new(restful.WebService)
+	serviceWs.Path("/v1").Consumes(restful.MIME_JSON).Produces(restful.MIME_JSON)
 
-	kvWs.Route(kvWs.POST("/apple").To(appleCtl.CreateApple))
-	kvWs.Route(kvWs.GET("/applelist").To(appleCtl.ListApple))
-	kvWs.Route(kvWs.GET("/apple/watch").To(appleCtl.WatchApple))
-	kvWs.Route(kvWs.GET("/apple").To(appleCtl.GetApple))
-	kvWs.Route(kvWs.PUT("/apple").To(appleCtl.UpdateApple))
-	kvWs.Route(kvWs.DELETE("/apple").To(appleCtl.DeleteApple))
+	serviceWs.Route(serviceWs.POST("/apple").To(appleCtl.CreateApple))
+	serviceWs.Route(serviceWs.GET("/applelist").To(appleCtl.ListApple))
+	serviceWs.Route(serviceWs.GET("/apple/watch").To(appleCtl.WatchApple))
+	serviceWs.Route(serviceWs.GET("/apple").To(appleCtl.GetApple))
+	serviceWs.Route(serviceWs.PUT("/apple").To(appleCtl.UpdateApple))
+	serviceWs.Route(serviceWs.DELETE("/apple").To(appleCtl.DeleteApple))
 
-	kvWs.Route(kvWs.POST("/car").To(carCtl.CreateCar))
-	kvWs.Route(kvWs.GET("/carlist").To(carCtl.ListCar))
-	kvWs.Route(kvWs.GET("/car/watch").To(carCtl.WatchCar))
-	kvWs.Route(kvWs.GET("/car").To(carCtl.GetCar))
-	kvWs.Route(kvWs.PUT("/car").To(carCtl.UpdateCar))
-	kvWs.Route(kvWs.DELETE("/car").To(carCtl.DeleteCar))
+	serviceWs.Route(serviceWs.POST("/car").To(carCtl.CreateCar))
+	serviceWs.Route(serviceWs.GET("/carlist").To(carCtl.ListCar))
+	serviceWs.Route(serviceWs.GET("/car/watch").To(carCtl.WatchCar))
+	serviceWs.Route(serviceWs.GET("/car").To(carCtl.GetCar))
+	serviceWs.Route(serviceWs.PUT("/car").To(carCtl.UpdateCar))
+	serviceWs.Route(serviceWs.DELETE("/car").To(carCtl.DeleteCar))
 
-	container.Add(kvWs)
+	container.Add(serviceWs)
 	return nil
 }
 
+// TODO: 注册v1alpha路由
 
-func (s *APIServer) buildHandlerChain(stopCh <-chan struct{}) {
+func (s *APIServer) buildHandlerChain(apiHandler http.Handler) {
+	// TODO: 增加其他中间件
+	handler := apiHandler
 
-	handler := s.Server.Handler
+	handler = s.AggregaterServer.SearchHandler(handler)
+	handler = filters.LoggerMiddleware(handler)
 
 	s.Server.Handler = handler
 }

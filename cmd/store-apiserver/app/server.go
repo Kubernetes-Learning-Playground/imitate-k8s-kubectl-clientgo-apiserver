@@ -27,7 +27,9 @@ func NewAPIServerCommand() *cobra.Command {
 			return Run(completedOptions, stopC)
 		},
 	}
-
+	// TODO: 这里可以让用户配置，使用 option -> config -> api-server
+	//fs := cmd.Flags()
+	//namedFlagSets := s.Flags()
 
 	return cmd
 }
