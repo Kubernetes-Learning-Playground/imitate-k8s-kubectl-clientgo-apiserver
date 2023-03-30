@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	corev1 "practice_ctl/pkg/apis/core/v1"
-	appv1 "practice_ctl/pkg/apis/apps/v1"
 	"practice_ctl/pkg/apimachinery/runtime"
+	appv1 "practice_ctl/pkg/apis/apps/v1"
+	corev1 "practice_ctl/pkg/apis/core/v1"
 )
 
 var (

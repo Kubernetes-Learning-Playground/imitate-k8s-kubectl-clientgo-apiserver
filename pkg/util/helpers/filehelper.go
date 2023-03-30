@@ -26,3 +26,9 @@ func LoadFile(path string) ([]byte, error) {
 	}
 	return b, err
 }
+
+func Must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
