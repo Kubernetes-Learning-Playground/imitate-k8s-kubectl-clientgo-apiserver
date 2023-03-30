@@ -1,4 +1,4 @@
-## 模拟k8s中的kubectl命令模式与clientSet调用的练习。
+## 模拟k8s中**kubectl**命令模式与**client-go**调用sdk与**api-server**开发设计。
 
 ### 目前还在一边开发一边设计，主要为了学习k8s的设计理念而创建的。
 
@@ -9,7 +9,7 @@
 1. 目前支持两种资源大类，并可以在api server中不断扩展
     a. core：可以看成水果类资源
     b. apps：可以看成汽车类资源
-2. 提供每种资源的create update delete get list 方法，目前支持list create apply等命令行操作
+2. 提供每种资源的create update delete get list 方法，目前支持list create apply delete watch等命令行操作
 3. 资源对象改成声明式api的形式，每次更新底层都是使用createOrUpdate方法
 4. 提供scheme注册表与GVK功能。
 ### RoadMap 
@@ -28,13 +28,24 @@
 功能：目前实现apple car资源对象(ex: pod)，并实现**GET LIST DELETE CREATE UPDATE WATCH** 方法
 
 #### 范例文件
-```bigquery
-    // 创建操作
+```go
+func main() {
+	// 配置文件
+	config := &rest.Config{
+		Host:    fmt.Sprintf("http://localhost:8888"),
+		Timeout: time.Second,
+	}
+	clientSet := stores.NewForConfig(config)
+
+
+	// 创建操作
 	a := &v1.Apple{
-		ApiVersion: "core/v1",
-		Kind: "APPLE",
-		Metadata: v1.Metadata{
-			Name: "apple1",
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: "core/v1",
+			Kind: "Apple",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "apple-test11",
 		},
 		Spec: v1.AppleSpec{
 			Size: "apple1",
@@ -48,22 +59,24 @@
 
 	}
 	c, err := clientSet.CoreV1().Apple().Create(a)
-    if err != nil {
+	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println("name:", c.Name,  "size:", c.Spec.Size, "color:", c.Spec.Color, "place:", c.Spec.Place, "price:", c.Spec.Price)
 
 	apple1, err := clientSet.CoreV1().Apple().Get(c.Name)
-    if err != nil {
+	if err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println("name: ", apple1.Name)
 
 	aaa := &v1.Apple{
-		ApiVersion: "core/v1",
-		Kind: "APPLE",
-		Metadata: v1.Metadata{
-			Name: "apple1",
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: "core/v1",
+			Kind: "Apple",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "apple-test11",
 		},
 		Spec: v1.AppleSpec{
 			Size: "apple1dddd",
@@ -74,22 +87,29 @@
 	}
 
 	appleUpdate, err := clientSet.CoreV1().Apple().Update(aaa)
-    if err != nil {
+	if err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println("name: ", appleUpdate.Name,  "size: ", appleUpdate.Spec.Size, "color: ", appleUpdate.Spec.Color, "place: ", appleUpdate.Spec.Place, "price: ", appleUpdate.Spec.Price)
 
 	appleList, err := clientSet.CoreV1().Apple().List()
-    if err != nil {
+	if err != nil {
 		log.Fatalln(err)
 	}
 	for _, apple := range appleList.Item {
 		fmt.Println(apple.Name)
 	}
+
+	err = clientSet.CoreV1().Apple().Delete("applexxxxxxx")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+}
 ```
 
 #### watch 操作
-```
+```go
 func main() {
 	//// 配置文件
 	config := &rest.Config{
@@ -148,47 +168,3 @@ func main() {
 ➜  storectl git:(main) ✗ go run storectl.go create apples aaa.json
 name:dddafjjhadsklfhaaaa is created
 
-```
-
-### 项目目录
-
-```bigquery
-├── README.md
-├── cmd # 编译main文件
-├── pkg
-│   ├── apis # 用来存放资源对象
-│   │   └── core
-│   │       ├── unverstioned
-│   │       │   └── version.go
-│   │       └── v1
-│   │           ├── apple.go
-│   │           └── version.go
-│   ├── storeapiserver
-│   │   ├── auth
-│   │   ├── configs
-│   │   └── controllers # api server控制器
-│   │       ├── apple.go
-│   │       └── version.go
-│   ├── storectl
-│   │   ├── cmd 
-│   │   │   ├── base.go
-│   │   │   └── versionCmd.go
-│   │   └── config # 客户端配置文件
-│   │       └── config.go
-│   └── util
-│       ├── helpers
-│       │   └── filehelper.go
-│       └── stores
-│           ├── clientset.go
-│           ├── rest # RESTClient http库封装
-│           │   ├── client.go
-│           │   ├── config.go
-│           │   ├── request.go
-│           │   └── result.go
-│           └── typed 
-│               └── core # core资源对象的 client 封装
-│                   ├── apple.go
-│                   ├── core_client.go
-│                   └── version.go
-└── test.go
-```
