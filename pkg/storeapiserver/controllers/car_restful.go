@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/emicklei/go-restful/v3"
 	"k8s.io/klog/v2"
+	"net/http"
 	appsv1 "practice_ctl/pkg/apis/apps/v1"
 )
 
@@ -23,7 +24,7 @@ func (c *CarRestfulCtl) GetCar(request *restful.Request, response *restful.Respo
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
@@ -40,7 +41,7 @@ func (c *CarRestfulCtl) CreateCar(request *restful.Request, response *restful.Re
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
@@ -50,7 +51,7 @@ func (c *CarRestfulCtl) CreateCar(request *restful.Request, response *restful.Re
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
@@ -67,7 +68,7 @@ func (c *CarRestfulCtl) UpdateCar(request *restful.Request, response *restful.Re
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
@@ -77,7 +78,7 @@ func (c *CarRestfulCtl) UpdateCar(request *restful.Request, response *restful.Re
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
@@ -97,14 +98,14 @@ func (c *CarRestfulCtl) DeleteCar(request *restful.Request, response *restful.Re
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
 	resp := struct {
 		Code int    	 `json:"code"`
 		Ok   interface{} `json:"ok"`
-	}{Code: 200, Ok: "ok"}
+	}{Code: http.StatusOK, Ok: "ok"}
 
 	response.WriteEntity(&resp)
 
@@ -119,7 +120,7 @@ func (c *CarRestfulCtl) ListCar(request *restful.Request, response *restful.Resp
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
@@ -127,7 +128,7 @@ func (c *CarRestfulCtl) ListCar(request *restful.Request, response *restful.Resp
 	resp := struct {
 		Code int    	 `json:"code"`
 		Item interface{} `json:"Item"`
-	}{Code: 200, Item: res.Item}
+	}{Code: http.StatusOK, Item: res.Item}
 
 	response.WriteEntity(&resp)
 	return

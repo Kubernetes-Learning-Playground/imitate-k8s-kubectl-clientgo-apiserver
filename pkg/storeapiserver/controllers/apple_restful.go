@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/emicklei/go-restful/v3"
 	"k8s.io/klog/v2"
+	"net/http"
 	v1 "practice_ctl/pkg/apis/core/v1"
 )
 
@@ -23,7 +24,7 @@ func (a *AppleRestfulCtl) GetApple(request *restful.Request, response *restful.R
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
@@ -32,7 +33,6 @@ func (a *AppleRestfulCtl) GetApple(request *restful.Request, response *restful.R
 
 	response.WriteEntity(&res)
 
-	//c.JSON(200, res)
 }
 
 
@@ -43,7 +43,7 @@ func (a *AppleRestfulCtl) CreateApple(request *restful.Request, response *restfu
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
@@ -53,7 +53,7 @@ func (a *AppleRestfulCtl) CreateApple(request *restful.Request, response *restfu
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
@@ -71,7 +71,7 @@ func (a *AppleRestfulCtl) UpdateApple(request *restful.Request, response *restfu
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
@@ -81,7 +81,7 @@ func (a *AppleRestfulCtl) UpdateApple(request *restful.Request, response *restfu
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
@@ -101,14 +101,14 @@ func (a *AppleRestfulCtl) DeleteApple(request *restful.Request, response *restfu
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
 	resp := struct {
 		Code int    	 `json:"code"`
 		Ok   interface{} `json:"ok"`
-	}{Code: 200, Ok: "ok"}
+	}{Code: http.StatusOK, Ok: "ok"}
 
 	response.WriteEntity(&resp)
 
@@ -123,7 +123,7 @@ func (a *AppleRestfulCtl) ListApple(request *restful.Request, response *restful.
 		errResp := struct {
 			Code int    `json:"code"`
 			Err  string `json:"err"`
-		}{Code: 400, Err: err.Error()}
+		}{Code: http.StatusBadRequest, Err: err.Error()}
 		response.WriteEntity(&errResp)
 		return
 	}
@@ -131,7 +131,7 @@ func (a *AppleRestfulCtl) ListApple(request *restful.Request, response *restful.
 	resp := struct {
 		Code int    	 `json:"code"`
 		Item interface{} `json:"Item"`
-	}{Code: 200, Item: res.Item}
+	}{Code: http.StatusOK, Item: res.Item}
 
 	response.WriteEntity(&resp)
 	return

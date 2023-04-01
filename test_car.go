@@ -35,10 +35,6 @@ func main() {
 			Brand: "car1",
 			Price: "car1",
 		},
-		Status: appsv1.CarStatus{
-			Status: "created",
-		},
-
 	}
 
 	c, err := clientSet.AppsV1().Car().Create(a)
@@ -67,7 +63,6 @@ func main() {
 			Brand: "car12233",
 			Price: "car12347934",
 		},
-
 	}
 
 	carUpdate, err := clientSet.AppsV1().Car().Update(aaa)

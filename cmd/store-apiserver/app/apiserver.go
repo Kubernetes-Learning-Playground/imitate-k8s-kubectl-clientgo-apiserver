@@ -12,11 +12,13 @@ import (
 )
 
 type APIServer struct {
-	ServerCount int
 
+	// server实例
 	Server *http.Server
+	// Aggregater server
 	AggregaterServer *AggregationApiServer
-	//Config *apiserverconfig.Config
+
+	// Config 配置文件
 	Config *Config
 
 	// webservice container, where all webservice defines
@@ -44,6 +46,7 @@ type completedServerRunOptions struct {
 	*ServerRunOptions
 }
 
+// Complete 完成server options配置
 func Complete(s *ServerRunOptions) (completedServerRunOptions, error) {
 	var options completedServerRunOptions
 	if s.Port == "" {
@@ -140,6 +143,15 @@ func (s *APIServer) AddCommonApiToContainer(container *restful.Container) error 
 	ws.Route(ws.GET("/ping").To(func(request *restful.Request, response *restful.Response) {
 		response.WriteAsJson("pong")
 	})).Doc("keepalive ping")
+
+	// 测试panic回复接口
+	ws.Route(ws.GET("/try_panic").To(func(request *restful.Request, response *restful.Response) {
+		panic("panic")
+	})).Doc("try panic")
+
+	// 测试请求超时接口
+	ws.Route(ws.GET("/try_timeout").To(controllers.TimedHandler)).Doc("try timeout")
+
 	// 注册接口
 	ws.Route(ws.POST("/register").To(func(request *restful.Request, response *restful.Response) {
 		req := struct {
@@ -151,7 +163,7 @@ func (s *APIServer) AddCommonApiToContainer(container *restful.Container) error 
 			errResp := struct {
 				Code int    `json:"code"`
 				Err  string `json:"err"`
-			}{Code: 400, Err: err.Error()}
+			}{Code: http.StatusBadRequest, Err: err.Error()}
 			response.WriteEntity(errResp)
 		}
 
@@ -159,11 +171,10 @@ func (s *APIServer) AddCommonApiToContainer(container *restful.Container) error 
 		resp := struct {
 			Code int    `json:"code"`
 			Res  interface{} `json:"res"`
-		}{Code: 200, Res: req}
+		}{Code: http.StatusOK, Res: req}
 		response.WriteAsJson(resp)
 
 	}))
-
 
 	container.Add(ws)
 
@@ -194,12 +205,17 @@ func (s *APIServer) AddServiceV1ApiToContainer(container *restful.Container) err
 
 // TODO: 注册v1alpha路由
 
+// buildHandlerChain 中间件
 func (s *APIServer) buildHandlerChain(apiHandler http.Handler) {
-	// TODO: 增加其他中间件
+	// TODO: 增加其他中间件，认证 鉴权 准入
 	handler := apiHandler
 
 	handler = s.AggregaterServer.SearchHandler(handler)
+	handler = filters.RequestTimeoutMiddleware(handler)
+	handler = filters.IpLimiterMiddleware(handler)
 	handler = filters.LoggerMiddleware(handler)
+	handler = filters.RecoveryMiddleware(handler)
+
 
 	s.Server.Handler = handler
 }
