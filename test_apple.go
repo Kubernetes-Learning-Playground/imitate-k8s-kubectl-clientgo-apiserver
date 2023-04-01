@@ -39,10 +39,6 @@ func main() {
 			Place: "apple1",
 			Price: "apple1",
 		},
-		Status: v1.AppleStatus{
-			Status: "created",
-		},
-
 	}
 	c, err := clientSet.CoreV1().Apple().Create(a)
 	if err != nil {

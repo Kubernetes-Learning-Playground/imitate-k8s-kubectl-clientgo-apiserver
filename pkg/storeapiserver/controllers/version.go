@@ -1,36 +1,44 @@
 package controllers
 
 import (
+	"github.com/emicklei/go-restful/v3"
 	"github.com/gin-gonic/gin"
-	"github.com/shenyisyn/goft-gin/goft"
-	"practice_ctl/pkg/apis/core/v1"
+	"time"
 )
 
-func NewServerVersionInfo() *v1.Version {
-	return &v1.Version{
-		Version: "0.1.1",
-		GoVersion: "go1.18",
+// TimedHandler 模拟超时handler
+func TimedHandler(request *restful.Request, response *restful.Response) {
+	// 获取替换之后的context 它具备了超时控制
+
+	ctx := request.Request.Context()
+
+	// 定义响应struct
+	type responseData struct {
+		status int
+		body   map[string]interface{}
 	}
-}
 
-type VersionCtl struct {
-}
+	// 创建一个done chan表明request要完成了
+	doneChan := make(chan responseData)
+	// 模拟API耗时的处理
+	go func() {
+		time.Sleep(time.Second * 500)
+		doneChan <- responseData{
+			status: 200,
+			body:   gin.H{"hello": "world"},
+		}
+	}()
 
-func NewVersionCtl() *VersionCtl {
-	return &VersionCtl{}
-}
+	// 监听两个chan谁先到达
+	select {
+	// 超时
+	case <-ctx.Done():
+		return
+	// 请求完成
+	case res := <-doneChan:
+		response.WriteEntity(res)
+	}
 
-func (v *VersionCtl) Version(c *gin.Context) {
-	c.JSON(200, NewServerVersionInfo())
-}
-
-func (v *VersionCtl) Name() string {
-	return "VersionCtl"
-}
-
-func (v *VersionCtl) Build(goft *goft.Goft) {
-	// GET  http://localhost:8080/version
-	goft.Handle("GET", "/version", v.Version)
 
 }
 
