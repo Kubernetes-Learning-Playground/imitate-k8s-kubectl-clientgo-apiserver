@@ -186,6 +186,7 @@ func (s *APIServer) AddServiceV1ApiToContainer(container *restful.Container) err
 	serviceWs.Path("/v1").Consumes(restful.MIME_JSON).Produces(restful.MIME_JSON)
 
 	serviceWs.Route(serviceWs.POST("/apple").To(appleCtl.CreateApple))
+	serviceWs.Route(serviceWs.PATCH("/apple").To(appleCtl.PatchApple))
 	serviceWs.Route(serviceWs.GET("/applelist").To(appleCtl.ListApple))
 	serviceWs.Route(serviceWs.GET("/apple/watch").To(appleCtl.WatchApple))
 	serviceWs.Route(serviceWs.GET("/apple").To(appleCtl.GetApple))
@@ -197,6 +198,7 @@ func (s *APIServer) AddServiceV1ApiToContainer(container *restful.Container) err
 	serviceWs.Route(serviceWs.GET("/car/watch").To(carCtl.WatchCar))
 	serviceWs.Route(serviceWs.GET("/car").To(carCtl.GetCar))
 	serviceWs.Route(serviceWs.PUT("/car").To(carCtl.UpdateCar))
+	serviceWs.Route(serviceWs.PATCH("/car").To(carCtl.PatchCar))
 	serviceWs.Route(serviceWs.DELETE("/car").To(carCtl.DeleteCar))
 
 	container.Add(serviceWs)

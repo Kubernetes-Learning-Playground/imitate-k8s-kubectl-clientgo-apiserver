@@ -83,11 +83,38 @@ func (c *CarRestfulCtl) UpdateCar(request *restful.Request, response *restful.Re
 		return
 	}
 
+	response.WriteEntity(&res)
+	return
+
+}
+
+func (c *CarRestfulCtl) PatchCar(request *restful.Request, response *restful.Response) {
+	var r *appsv1.Car
+	if err := request.ReadEntity(&r); err != nil {
+		fmt.Println("bind json err!")
+		errResp := struct {
+			Code int    `json:"code"`
+			Err  string `json:"err"`
+		}{Code: http.StatusBadRequest, Err: err.Error()}
+		response.WriteEntity(&errResp)
+		return
+	}
+	res, err := patchCar(r)
+	if err != nil {
+		fmt.Println("create err!")
+		errResp := struct {
+			Code int    `json:"code"`
+			Err  string `json:"err"`
+		}{Code: http.StatusBadRequest, Err: err.Error()}
+		response.WriteEntity(&errResp)
+		return
+	}
 
 	response.WriteEntity(&res)
 	return
 
 }
+
 
 func (c *CarRestfulCtl) DeleteCar(request *restful.Request, response *restful.Response) {
 	name := request.QueryParameter("name")

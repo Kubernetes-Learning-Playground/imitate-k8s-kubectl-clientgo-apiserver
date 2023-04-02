@@ -139,6 +139,32 @@ func (a *AppleRestfulCtl) ListApple(request *restful.Request, response *restful.
 }
 
 
+func (a *AppleRestfulCtl) PatchApple(request *restful.Request, response *restful.Response) {
+	var r *v1.Apple
+	if err := request.ReadEntity(&r); err != nil {
+		fmt.Println("bind json err!")
+		errResp := struct {
+			Code int    `json:"code"`
+			Err  string `json:"err"`
+		}{Code: http.StatusBadRequest, Err: err.Error()}
+		response.WriteEntity(&errResp)
+		return
+	}
+	res, err := patchApple(r)
+	if err != nil {
+		fmt.Println("create err!")
+		errResp := struct {
+			Code int    `json:"code"`
+			Err  string `json:"err"`
+		}{Code: http.StatusBadRequest, Err: err.Error()}
+		response.WriteEntity(&errResp)
+		return
+	}
+
+	response.WriteEntity(&res)
+	return
+
+}
 
 
 // 使用ws连接实现类似watch的实时传递
