@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -11,6 +13,7 @@ import (
 	v1 "practice_ctl/pkg/apis/core/v1"
 	metav1 "practice_ctl/pkg/apis/meta"
 	"practice_ctl/pkg/etcd"
+	"practice_ctl/pkg/util/helpers"
 )
 
 var AppleMap = map[string]runtime.Object{}
@@ -93,6 +96,7 @@ func createOrUpdateApple(o runtime.Object) (*v1.Apple, error) {
 		old := o.(*v1.Apple)
 		klog.Infof("find the apple %v, and update it!", old.Name)
 		old.Name = apple.Name
+		old.Annotations = apple.Annotations
 		old.Spec.Price = apple.Spec.Price
 		old.Spec.Place = apple.Spec.Place
 		old.Spec.Size = apple.Spec.Size
@@ -120,11 +124,11 @@ func createOrUpdateApple(o runtime.Object) (*v1.Apple, error) {
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: apple.Name,
+			Annotations: apple.Annotations,
 		},
 		Spec: apple.Spec,
 		Status: a,
 	}
-
 
 	// 存入map
 	AppleMap[apple.Name] = new
@@ -231,6 +235,99 @@ func (w *WsClientApple) watchApple(applePrefix string)  {
 
 }
 
+func patchApple(o runtime.Object) (*v1.Apple, error) {
+	apple := o.(*v1.Apple)
+	// 重新赋值
+	if o, ok := AppleMap[apple.Name]; ok {
+		old := interface{}(o).(*v1.Apple)
+		apple.Status = v1.AppleStatus{
+			Status: "updated",
+		}
+		delete(AppleMap, old.Name) // delete car from map
+
+		// 获取patch对象与原对象的差距
+		patch, err := jsonpatch.CreateMergePatch(helpers.ToJson(old), helpers.ToJson(apple))
+		if err != nil {
+			return nil, errors.New("apple patch error")
+		}
+		newApple := &v1.Apple{
+			TypeMeta: metav1.TypeMeta{
+				ApiVersion: "core/v1",
+				Kind: "Apple",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: apple.Name,
+			},
+			Status: v1.AppleStatus{
+				Status: "updated",
+			},
+		}
+		// 创建一个新对象给patch的差距
+		nc, err := jsonpatch.MergePatch(helpers.ToJson(newApple), patch)
+		if err != nil {
+			return nil, errors.New("car patch create error")
+		}
+
+		var ccc v1.Apple
+		err = json.Unmarshal(nc, &ccc)
+		if err != nil {
+			return nil, errors.New("car patch unmarshal error")
+		}
+
+		// FIXME: 如果直接赋值，会导致之前的annotation消失
+		// 记住last-apply字段
+		ccc.Annotations = map[string]string{
+			"last-applied-configuration": string(helpers.ToJson(ccc)),
+		}
+		AppleMap[old.Name] = &ccc
+
+		strKey, strValue := parseEtcdData(&ccc)
+		klog.Info("update key: ", strKey)
+		err = etcd.Put(strKey, strValue)
+		if err != nil {
+			klog.Errorf("patch key error: ", strKey, err)
+			return old, err
+		}
+
+		return &ccc, nil
+	}
+
+	klog.Infof("not find this apple, and create it!")
+
+	new := &v1.Apple{
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: "core/v1",
+			Kind: "Apple",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: apple.Name,
+		},
+		Spec: v1.AppleSpec{
+			Place: apple.Spec.Place,
+			Size: apple.Spec.Size,
+			Price: apple.Spec.Price,
+			Color: apple.Spec.Color,
+		},
+		Status: v1.AppleStatus{
+			Status: "created",
+		},
+	}
+
+	AppleMap[apple.Name] = new
+
+	strKey, strValue := parseEtcdDataCar(new)
+	klog.Info("create key: ", strKey)
+	err := etcd.Put(strKey, strValue)
+	if err != nil {
+		klog.Errorf("create key error: ", strKey, err)
+		return new, err
+	}
+
+	// 如果查到就抛错
+	return nil, errors.New("this car is not found")
+}
+
+
 //func createApple(apple *v1.Apple) (*v1.Apple, error) {
 //	// 如果查到就抛错
 //	if _, ok := AppleMap[apple.Name]; ok {
@@ -268,6 +365,8 @@ func (w *WsClientApple) watchApple(applePrefix string)  {
 //
 //
 //}
+
+// use gin framework handler
 
 type AppleCtl struct {
 }

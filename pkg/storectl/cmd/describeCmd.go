@@ -3,11 +3,13 @@ package cmds
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
+	"k8s.io/apimachinery/pkg/util/json"
 	"practice_ctl/pkg/storectl/config"
 	"practice_ctl/pkg/util/stores"
 	"practice_ctl/pkg/util/stores/rest"
+	yy "github.com/ghodss/yaml"
 	"time"
-	"gopkg.in/yaml.v2"
 )
 
 
@@ -61,12 +63,16 @@ func DescribeApple(client *stores.ClientSet, name string) error {
 		fmt.Printf("apple is notfound\n" )
 		return nil
 	}
-	resByte, err := yaml.Marshal(res)
+	// 强制转换json字符串为yaml字符串
+	resByte, err := json.Marshal(res)
+	resByte, _ = yy.JSONToYAML(resByte)
+
 	if err != nil {
 		fmt.Printf("apple name:%v describe error\n", res.Name)
 		return nil
 	}
 	fmt.Printf(string(resByte))
+
 	return nil
 }
 

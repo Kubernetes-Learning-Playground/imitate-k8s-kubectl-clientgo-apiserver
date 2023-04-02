@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -12,6 +13,7 @@ import (
 	appsv1 "practice_ctl/pkg/apis/apps/v1"
 	metav1 "practice_ctl/pkg/apis/meta"
 	"practice_ctl/pkg/etcd"
+	"practice_ctl/pkg/util/helpers"
 )
 
 var CarMap = map[string]runtime.Object{}
@@ -96,6 +98,7 @@ func createOrUpdateCar(o runtime.Object) (*appsv1.Car, error) {
 		old := o.(*appsv1.Car)
 		klog.Infof("find the apple %v, and update it!", old.Name)
 		old.Name = car.Name
+		old.Annotations = car.Annotations
 		old.Spec.Price = car.Spec.Price
 		old.Spec.Brand = car.Spec.Brand
 		old.Spec.Color = car.Spec.Color
@@ -156,6 +159,7 @@ func createCar(o runtime.Object) (*appsv1.Car, error) {
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: car.Name,
+			Annotations: car.Annotations,
 		},
 		Spec: appsv1.CarSpec{
 			Brand: car.Spec.Brand,
@@ -181,6 +185,7 @@ func updateCar(o runtime.Object) (*appsv1.Car, error) {
 	if o, ok := CarMap[car.Name]; ok {
 		old := interface{}(o).(*appsv1.Car)
 		old.Name = car.Name
+		old.Annotations = car.Annotations
 		old.Spec.Price = car.Spec.Price
 		old.Spec.Brand = car.Spec.Brand
 		old.Spec.Color = car.Spec.Color
@@ -190,8 +195,94 @@ func updateCar(o runtime.Object) (*appsv1.Car, error) {
 
 	// 如果查到就抛错
 	return nil, errors.New("this car is not found")
+}
 
+func patchCar(o runtime.Object) (*appsv1.Car, error) {
+	car := o.(*appsv1.Car)
+	// 重新赋值
+	if o, ok := CarMap[car.Name]; ok {
+		old := interface{}(o).(*appsv1.Car)
+		car.Status = appsv1.CarStatus{
+			Status: "updated",
+		}
+		delete(CarMap, old.Name) // delete car from map
 
+		// 获取patch对象与原对象的差距
+		patch, err := jsonpatch.CreateMergePatch(helpers.ToJson(old), helpers.ToJson(car))
+		if err != nil {
+			return nil, errors.New("car patch error")
+		}
+		newCar := &appsv1.Car{
+			TypeMeta: metav1.TypeMeta{
+				ApiVersion: "apps/v1",
+				Kind: "Car",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: car.Name,
+			},
+			Status: appsv1.CarStatus{
+				Status: "updated",
+			},
+		}
+		// 创建一个新对象给patch的差距
+		nc, err := jsonpatch.MergePatch(helpers.ToJson(newCar), patch)
+		if err != nil {
+			return nil, errors.New("car patch create error")
+		}
+
+		var ccc appsv1.Car
+		err = json.Unmarshal(nc, &ccc)
+		if err != nil {
+			return nil, errors.New("car patch unmarshal error")
+		}
+		// 记住last-apply字段
+		ccc.Annotations = map[string]string{
+			"last-applied-configuration": string(helpers.ToJson(ccc)),
+		}
+		CarMap[old.Name] = &ccc
+
+		strKey, strValue := parseEtcdDataCar(&ccc)
+		klog.Info("update key: ", strKey)
+		err = etcd.Put(strKey, strValue)
+		if err != nil {
+			klog.Errorf("patch key error: ", strKey, err)
+			return old, err
+		}
+
+		return &ccc, nil
+	}
+
+	klog.Infof("not find this car, and create it!")
+
+	new := &appsv1.Car{
+		TypeMeta: metav1.TypeMeta{
+			ApiVersion: "apps/v1",
+			Kind: "Car",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: car.Name,
+		},
+		Spec: appsv1.CarSpec{
+			Brand: car.Spec.Brand,
+			Price: car.Spec.Price,
+			Color: car.Spec.Color,
+		},
+		Status: appsv1.CarStatus{
+			Status: "created",
+		},
+	}
+
+	CarMap[new.Name] = new
+	strKey, strValue := parseEtcdDataCar(new)
+	klog.Info("create key: ", strKey)
+	err := etcd.Put(strKey, strValue)
+	if err != nil {
+		klog.Errorf("create key error: ", strKey, err)
+		return new, err
+	}
+
+	// 如果查到就抛错
+	return nil, errors.New("this car is not found")
 }
 
 type CarCtl struct {

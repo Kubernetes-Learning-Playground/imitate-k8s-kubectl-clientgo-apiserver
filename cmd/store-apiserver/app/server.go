@@ -11,7 +11,6 @@ func NewAPIServerCommand() *cobra.Command {
 		Short: "run http server",
 		Long: ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 			// set default options
 			completedOptions, err := Complete(s)
 			if err != nil {
