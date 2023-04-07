@@ -65,7 +65,7 @@ func (r *Request) Path(p string) *Request {
 	str := strings.Split(r.c.BasePath, "://")
 	r.req.URL.Scheme = str[0]
 	r.req.URL.Host = str[1]
-
+	r.req.Header.Set("token", r.c.Token)
 	r.req.URL.Path = p
 	return r
 }

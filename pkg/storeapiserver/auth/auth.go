@@ -4,25 +4,39 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/casbin/casbin"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/emicklei/go-restful/v3"
 	"net/http"
 	"time"
 )
 
+func init() {
+	e := casbin.NewEnforcer("./rbac_models.conf")
+	Enforcer = e
+}
+
 // store all user
 var userMap = map[string]string{
 	"test":    "test",
-	"testUser2":    "testUser2",
+	"admin":    "admin",
+}
+
+var Enforcer *casbin.Enforcer
+
+var UserMap = map[string]User {
+
 }
 
 // User 用户
 type User struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-
+	Username     string `json:"username"`
+	Password     string `json:"password"`
+	ActionUrl    string `json:"action_url"`
+	ActionMethod string `json:"action_method"`
 }
 
+// TODO: 创建user路由 删除user路由
 
 func LoginHandler(request *restful.Request, response *restful.Response) {
 	switch request.Request.Method {
@@ -40,12 +54,20 @@ func LoginHandler(request *restful.Request, response *restful.Response) {
 			return
 		}
 
+		// 生成jwt token
 		token, err := generateJWT(user.Username)
 		if err != nil {
 			fmt.Fprintf(response, "error in generating token")
 		}
+		// 需要存入 策略
+		UserMap[user.Username] = user
 
-		fmt.Fprintf(response, token)
+		if ok := Enforcer.AddPolicy(user.Username, user.ActionUrl, user.ActionMethod); !ok {
+			fmt.Println("Policy已经存在")
+		} else {
+			fmt.Fprintf(response, token)
+		}
+
 
 	}
 }

@@ -2,15 +2,14 @@ package filters
 
 import (
 	"fmt"
-	"github.com/casbin/casbin"
 	"net/http"
+	"practice_ctl/pkg/storeapiserver/auth"
 )
 
-var Enforcer *casbin.Enforcer
 
 func AuthorizeMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
-		e := Enforcer
+		e := auth.Enforcer
 
 		////从DB加载策略
 		//e.LoadPolicy()

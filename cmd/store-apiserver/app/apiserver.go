@@ -217,6 +217,7 @@ func (s *APIServer) buildHandlerChain(apiHandler http.Handler) {
 	handler := apiHandler
 
 	handler = s.AggregaterServer.SearchHandler(handler)		// 聚合中间件
+	handler = filters.AuthorizeMiddleware(handler)
 	handler = filters.AuthenticateMiddleware(handler)		// 认证中间件
 	handler = filters.RequestTimeoutMiddleware(handler)		// 请求超时中间件
 	handler = filters.IpLimiterMiddleware(handler)			// ip限流中间件

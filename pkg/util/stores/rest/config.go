@@ -8,6 +8,7 @@ import (
 type Config struct {
 	Host    string
 	Timeout time.Duration
+	Token   string
 }
 
 
