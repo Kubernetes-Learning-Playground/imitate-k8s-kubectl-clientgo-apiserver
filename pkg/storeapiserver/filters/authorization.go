@@ -9,6 +9,11 @@ import (
 
 func AuthorizeMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		if request.URL.Path == "/login" {
+			handler.ServeHTTP(response, request)
+			return
+		}
+
 		e := auth.Enforcer
 
 		////从DB加载策略
@@ -23,10 +28,10 @@ func AuthorizeMiddleware(handler http.Handler) http.Handler {
 
 		// 判断策略中是否存在
 		if ok := e.Enforce(sub, obj, act); ok {
-			fmt.Println("恭喜您,权限验证通过")
+			fmt.Println("权限验证通过")
 			handler.ServeHTTP(response, request) // 进行下一步操作
 		} else {
-			fmt.Println("很遗憾,权限验证没有通过")
+			fmt.Println("权限验证没有通过")
 			response.WriteHeader(http.StatusBadRequest)
 			response.Write([]byte("the Authorize is failed"))
 		}

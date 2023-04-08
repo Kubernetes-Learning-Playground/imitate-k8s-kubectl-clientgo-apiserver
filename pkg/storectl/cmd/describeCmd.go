@@ -21,6 +21,7 @@ func DescribeCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 	cfg := &rest.Config{
 		Host:    fmt.Sprintf("http://" + configRes.Server),
 		Timeout: time.Second,
+		Token: configRes.Token,
 	}
 	clientSet := stores.NewForConfig(cfg)
 

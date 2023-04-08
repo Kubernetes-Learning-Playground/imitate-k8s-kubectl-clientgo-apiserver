@@ -16,6 +16,7 @@ func main() {
 	config := &rest.Config{
 		Host:    fmt.Sprintf("http://localhost:8888"),
 		Timeout: time.Second,
+		Token: "",
 	}
 	clientSet := stores.NewForConfig(config)
 
