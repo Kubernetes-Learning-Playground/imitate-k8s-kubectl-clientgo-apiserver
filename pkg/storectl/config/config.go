@@ -9,9 +9,10 @@ import (
 	"practice_ctl/pkg/util/helpers"
 )
 
-// BlogCtlConfig
+// StoreCtlConfig
 type StoreCtlConfig struct {
 	Server string `yaml:"server"`
+	Token  string `yaml:"token"`
 }
 
 // LoadConfigFile 读取配置文件,模仿kubectl，默认在~/.store/config

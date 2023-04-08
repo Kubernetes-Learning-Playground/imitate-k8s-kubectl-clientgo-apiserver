@@ -21,6 +21,7 @@ type RESTClient struct {
 	*http.Client
 	Ws       *websocket.Conn
 	BasePath string
+	Token    string
 }
 
 // Get 方法
@@ -59,7 +60,7 @@ func NewRESTClient(config *Config) *RESTClient {
 	c := &http.Client{}
 	c.Timeout = config.Timeout
 
-	return &RESTClient{Client: c, BasePath: config.Host}
+	return &RESTClient{Client: c, BasePath: config.Host, Token: config.Token}
 }
 
 

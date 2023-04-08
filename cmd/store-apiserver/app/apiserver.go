@@ -6,6 +6,7 @@ import (
 	"github.com/emicklei/go-restful/v3"
 	"k8s.io/klog/v2"
 	"net/http"
+	"practice_ctl/pkg/storeapiserver/auth"
 	"practice_ctl/pkg/storeapiserver/controllers"
 	"practice_ctl/pkg/storeapiserver/filters"
 	"practice_ctl/pkg/util/helpers"
@@ -33,7 +34,7 @@ type Config struct {
 
 type ServerRunOptions struct {
 	Config
-	Port string
+	Port 		 string
 	EtcdEndpoint string
 }
 
@@ -152,6 +153,9 @@ func (s *APIServer) AddCommonApiToContainer(container *restful.Container) error 
 	// 测试请求超时接口
 	ws.Route(ws.GET("/try_timeout").To(controllers.TimedHandler)).Doc("try timeout")
 
+	// 登入接口
+	ws.Route(ws.POST("/login").To(auth.LoginHandler))
+
 	// 注册接口
 	ws.Route(ws.POST("/register").To(func(request *restful.Request, response *restful.Response) {
 		req := struct {
@@ -212,12 +216,13 @@ func (s *APIServer) buildHandlerChain(apiHandler http.Handler) {
 	// TODO: 增加其他中间件，认证 鉴权 准入
 	handler := apiHandler
 
-	handler = s.AggregaterServer.SearchHandler(handler)
-	handler = filters.RequestTimeoutMiddleware(handler)
-	handler = filters.IpLimiterMiddleware(handler)
-	handler = filters.LoggerMiddleware(handler)
-	handler = filters.RecoveryMiddleware(handler)
-
+	handler = s.AggregaterServer.SearchHandler(handler)		// 聚合中间件
+	handler = filters.AuthorizeMiddleware(handler)          // 授权中间件
+	handler = filters.AuthenticateMiddleware(handler)		// 认证中间件
+	handler = filters.RequestTimeoutMiddleware(handler)		// 请求超时中间件
+	handler = filters.IpLimiterMiddleware(handler)			// ip限流中间件
+	handler = filters.LoggerMiddleware(handler)				// 日志中间件
+	handler = filters.RecoveryMiddleware(handler)			// panic中间件
 
 	s.Server.Handler = handler
 }

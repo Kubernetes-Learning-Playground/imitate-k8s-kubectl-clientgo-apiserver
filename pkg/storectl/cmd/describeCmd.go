@@ -2,13 +2,12 @@ package cmds
 
 import (
 	"fmt"
+	yy "github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/util/json"
 	"practice_ctl/pkg/storectl/config"
 	"practice_ctl/pkg/util/stores"
 	"practice_ctl/pkg/util/stores/rest"
-	yy "github.com/ghodss/yaml"
 	"time"
 )
 
@@ -22,6 +21,7 @@ func DescribeCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 	cfg := &rest.Config{
 		Host:    fmt.Sprintf("http://" + configRes.Server),
 		Timeout: time.Second,
+		Token: configRes.Token,
 	}
 	clientSet := stores.NewForConfig(cfg)
 
@@ -83,7 +83,9 @@ func DescribeCar(client *stores.ClientSet, name string) error {
 		fmt.Printf("car is notfound\n" )
 		return nil
 	}
-	resByte, err := yaml.Marshal(res)
+	// 强制转换json字符串为yaml字符串
+	resByte, err := json.Marshal(res)
+	resByte, _ = yy.JSONToYAML(resByte)
 	if err != nil {
 		fmt.Printf("car name:%v describe error\n", res.Name)
 		return nil

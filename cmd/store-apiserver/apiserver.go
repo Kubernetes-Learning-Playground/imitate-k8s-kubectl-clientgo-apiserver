@@ -1,9 +1,9 @@
 package main
 
 import (
-	"practice_ctl/cmd/store-apiserver/app"
-	"os"
 	"k8s.io/component-base/cli"
+	"os"
+	"practice_ctl/cmd/store-apiserver/app"
 )
 
 func main() {
