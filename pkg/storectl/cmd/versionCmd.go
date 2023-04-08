@@ -14,7 +14,6 @@ func (cv *ClientVersionInfo) String() string {
 	return fmt.Sprintf("versionInfo:{version:%s,goversion:%s}", cv.Version, cv.GoVersion)
 }
 
-
 func NewClientVersionInfo() *ClientVersionInfo {
 	return &ClientVersionInfo{
 		Version:   "0.1",
@@ -33,4 +32,3 @@ var versionCmd = &cobra.Command{
 		return nil
 	},
 }
-

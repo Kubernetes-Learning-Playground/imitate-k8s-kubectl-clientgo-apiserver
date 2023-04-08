@@ -22,7 +22,7 @@ func ApplyCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 	cfg := &rest.Config{
 		Host:    fmt.Sprintf("http://" + configRes.Server),
 		Timeout: time.Second,
-		Token: configRes.Token,
+		Token:   configRes.Token,
 	}
 	clientSet := stores.NewForConfig(cfg)
 
@@ -49,17 +49,13 @@ func ApplyCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 				}
 			}
 
-
 			return nil
 		},
 	}
 
 	return CreateCmd
 
-
 }
-
-
 
 func ApplyApple(client *stores.ClientSet, path string, pathType string) error {
 
@@ -72,7 +68,7 @@ func ApplyApple(client *stores.ClientSet, path string, pathType string) error {
 
 	if pathType == "yaml" {
 		err = yaml.Unmarshal(bytes, a)
-	} else if pathType == "json"{
+	} else if pathType == "json" {
 		err = json.Unmarshal(bytes, a)
 	}
 
@@ -104,8 +100,7 @@ func ApplyApple(client *stores.ClientSet, path string, pathType string) error {
 
 }
 
-
-func ApplyCar(client *stores.ClientSet, path string, pathType string) error{
+func ApplyCar(client *stores.ClientSet, path string, pathType string) error {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println("读取json文件失败", err)
@@ -114,7 +109,7 @@ func ApplyCar(client *stores.ClientSet, path string, pathType string) error{
 	a := &v12.Car{}
 	if pathType == "yaml" {
 		err = yaml.Unmarshal(bytes, a)
-	} else if pathType == "json"{
+	} else if pathType == "json" {
 		err = json.Unmarshal(bytes, a)
 	}
 
@@ -144,4 +139,3 @@ func ApplyCar(client *stores.ClientSet, path string, pathType string) error{
 
 	return nil
 }
-

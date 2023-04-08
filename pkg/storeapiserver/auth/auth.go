@@ -18,15 +18,13 @@ func init() {
 
 // store all user
 var userMap = map[string]string{
-	"test":    "test",
-	"admin":    "admin",
+	"test":  "test",
+	"admin": "admin",
 }
 
 var Enforcer *casbin.Enforcer
 
-var UserMap = map[string]User {
-
-}
+var UserMap = map[string]User{}
 
 // User 用户
 type User struct {
@@ -67,7 +65,6 @@ func LoginHandler(request *restful.Request, response *restful.Response) {
 		} else {
 			fmt.Fprintf(response, token)
 		}
-
 
 	}
 }

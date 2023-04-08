@@ -13,7 +13,7 @@ type Result struct {
 }
 
 // Into 把resp转出来
-func (r Result) Into(v interface{})(err error) {
+func (r Result) Into(v interface{}) (err error) {
 	if r.err != nil {
 		return r.err
 	}
@@ -22,4 +22,3 @@ func (r Result) Into(v interface{})(err error) {
 	err = json.Unmarshal(body, v)
 	return err
 }
-

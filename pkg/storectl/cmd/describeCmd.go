@@ -11,17 +11,15 @@ import (
 	"time"
 )
 
-
 var DescribeCmd = &cobra.Command{}
 
 func DescribeCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 	// 配置文件
 
-
 	cfg := &rest.Config{
 		Host:    fmt.Sprintf("http://" + configRes.Server),
 		Timeout: time.Second,
-		Token: configRes.Token,
+		Token:   configRes.Token,
 	}
 	clientSet := stores.NewForConfig(cfg)
 
@@ -47,7 +45,6 @@ func DescribeCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 				}
 			}
 
-
 			return nil
 		},
 	}
@@ -56,11 +53,10 @@ func DescribeCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 
 }
 
-
 func DescribeApple(client *stores.ClientSet, name string) error {
 	res, err := client.CoreV1().Apple().Get(name)
 	if res.Name == "" && err == nil {
-		fmt.Printf("apple is notfound\n" )
+		fmt.Printf("apple is notfound\n")
 		return nil
 	}
 	// 强制转换json字符串为yaml字符串
@@ -80,7 +76,7 @@ func DescribeCar(client *stores.ClientSet, name string) error {
 
 	res, err := client.AppsV1().Car().Get(name)
 	if res.Name == "" && err == nil {
-		fmt.Printf("car is notfound\n" )
+		fmt.Printf("car is notfound\n")
 		return nil
 	}
 	// 强制转换json字符串为yaml字符串
@@ -94,8 +90,3 @@ func DescribeCar(client *stores.ClientSet, name string) error {
 
 	return nil
 }
-
-
-
-
-

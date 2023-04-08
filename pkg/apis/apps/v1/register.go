@@ -21,22 +21,20 @@ func (f *Car) GroupVersionKind() schema.GroupVersionKind {
 	var s schema.GroupVersionKind
 	if len(res) < 2 {
 		s = schema.GroupVersionKind{
-			Group: "",
+			Group:   "",
 			Version: res[0],
-			Kind: f.Kind,
+			Kind:    f.Kind,
 		}
 
 	} else {
 		s = schema.GroupVersionKind{
-			Group: res[0],
+			Group:   res[0],
 			Version: res[1],
-			Kind: f.Kind,
+			Kind:    f.Kind,
 		}
 	}
 	return s
 }
-
-
 
 func (f *Car) GetObjectKind(g schema.GroupVersionKind) schema.ObjectKind {
 	f.SetGroupVersionKind(g)
@@ -55,24 +53,20 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	f := &Car{
 		TypeMeta: metav1.TypeMeta{
 			ApiVersion: "apps/v1",
-			Kind: "Car",
+			Kind:       "Car",
 		},
-
 	}
 	scheme.AddKnownTypes(SchemeGroupVersion, f)
 
 	return nil
 
-
 }
 
 func init() {
-	schemeBuilder      = runtime.NewSchemeBuilder(addKnownTypes)
+	schemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 	localSchemeBuilder = &schemeBuilder
-	AddToScheme        = localSchemeBuilder.AddScheme
+	AddToScheme = localSchemeBuilder.AddScheme
 }
 
 var _ schema.ObjectKind = &Car{}
 var _ runtime.Object = &Car{}
-
-

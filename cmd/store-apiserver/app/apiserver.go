@@ -24,17 +24,14 @@ type APIServer struct {
 
 	// webservice container, where all webservice defines
 	container *restful.Container
-
-
 }
 
 type Config struct {
-
 }
 
 type ServerRunOptions struct {
 	Config
-	Port 		 string
+	Port         string
 	EtcdEndpoint string
 }
 
@@ -66,7 +63,6 @@ func Complete(s *ServerRunOptions) (completedServerRunOptions, error) {
 func (s *ServerRunOptions) Validate() []error {
 	var errs []error
 
-
 	return errs
 }
 
@@ -88,10 +84,9 @@ func Run(completeOptions completedServerRunOptions, stopCh <-chan struct{}) erro
 
 func (s *ServerRunOptions) NewAPIServer(stopCh <-chan struct{}) (*APIServer, error) {
 	apiServer := &APIServer{
-		Config:     &s.Config,
+		Config:           &s.Config,
 		AggregaterServer: NewAggregationApiServer(),
 	}
-
 
 	server := &http.Server{
 		Addr: fmt.Sprintf(":%v", s.Port),
@@ -101,7 +96,6 @@ func (s *ServerRunOptions) NewAPIServer(stopCh <-chan struct{}) (*APIServer, err
 
 	return apiServer, nil
 }
-
 
 func (s *APIServer) PrepareRun(stopCh <-chan struct{}) error {
 	s.container = restful.NewContainer()
@@ -173,7 +167,7 @@ func (s *APIServer) AddCommonApiToContainer(container *restful.Container) error 
 
 		s.AggregaterServer.AggregationMap[req.Path] = req.Host
 		resp := struct {
-			Code int    `json:"code"`
+			Code int         `json:"code"`
 			Res  interface{} `json:"res"`
 		}{Code: http.StatusOK, Res: req}
 		response.WriteAsJson(resp)
@@ -216,18 +210,16 @@ func (s *APIServer) buildHandlerChain(apiHandler http.Handler) {
 	// TODO: 增加其他中间件，认证 鉴权 准入
 	handler := apiHandler
 
-	handler = s.AggregaterServer.SearchHandler(handler)		// 聚合中间件
-	handler = filters.AuthorizeMiddleware(handler)          // 授权中间件
-	handler = filters.AuthenticateMiddleware(handler)		// 认证中间件
-	handler = filters.RequestTimeoutMiddleware(handler)		// 请求超时中间件
-	handler = filters.IpLimiterMiddleware(handler)			// ip限流中间件
-	handler = filters.LoggerMiddleware(handler)				// 日志中间件
-	handler = filters.RecoveryMiddleware(handler)			// panic中间件
+	handler = s.AggregaterServer.SearchHandler(handler) // 聚合中间件
+	handler = filters.AuthorizeMiddleware(handler)      // 授权中间件
+	handler = filters.AuthenticateMiddleware(handler)   // 认证中间件
+	handler = filters.RequestTimeoutMiddleware(handler) // 请求超时中间件
+	handler = filters.IpLimiterMiddleware(handler)      // ip限流中间件
+	handler = filters.LoggerMiddleware(handler)         // 日志中间件
+	handler = filters.RecoveryMiddleware(handler)       // panic中间件
 
 	s.Server.Handler = handler
 }
-
-
 
 func (s *APIServer) Run(ctx context.Context) (err error) {
 	initController()

@@ -5,7 +5,6 @@ import (
 	"practice_ctl/pkg/storeapiserver/auth"
 )
 
-
 // AuthenticateMiddleware 认证中间件
 func AuthenticateMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
@@ -25,4 +24,3 @@ func AuthenticateMiddleware(handler http.Handler) http.Handler {
 
 	})
 }
-

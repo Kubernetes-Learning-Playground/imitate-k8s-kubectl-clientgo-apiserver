@@ -9,7 +9,6 @@ import (
 
 var testScheme = runtime.NewScheme()
 
-
 func TestApple(t *testing.T) {
 	err := AddToScheme(testScheme)
 	if err != nil {

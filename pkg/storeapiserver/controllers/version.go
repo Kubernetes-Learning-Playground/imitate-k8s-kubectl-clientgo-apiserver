@@ -39,6 +39,4 @@ func TimedHandler(request *restful.Request, response *restful.Response) {
 		response.WriteEntity(res)
 	}
 
-
 }
-

@@ -14,7 +14,6 @@ type Bucket struct {
 	lastTime int64
 }
 
-
 const (
 	DefaultCap  = 5
 	DefaultRate = 1
@@ -44,7 +43,7 @@ func (b *Bucket) IsAccept() bool {
 	defer b.lock.Unlock()
 
 	now := time.Now().Unix()
-	b.tokens = b.tokens + (now - b.lastTime) * b.rate
+	b.tokens = b.tokens + (now-b.lastTime)*b.rate
 
 	if b.tokens >= b.cap {
 		b.tokens = b.cap

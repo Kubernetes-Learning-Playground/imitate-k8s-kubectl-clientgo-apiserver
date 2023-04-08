@@ -14,7 +14,7 @@ type Interface interface {
 	Watch() *Request
 }
 
-var _ Interface = &RESTClient{}	// 查看是否实现此接口
+var _ Interface = &RESTClient{} // 查看是否实现此接口
 
 // RESTClient 底层对象
 type RESTClient struct {
@@ -62,5 +62,3 @@ func NewRESTClient(config *Config) *RESTClient {
 
 	return &RESTClient{Client: c, BasePath: config.Host, Token: config.Token}
 }
-
-

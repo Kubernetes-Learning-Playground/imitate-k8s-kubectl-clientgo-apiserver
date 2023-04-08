@@ -23,7 +23,7 @@ func init() {
 	init := &appsv1.Car{
 		TypeMeta: metav1.TypeMeta{
 			ApiVersion: "apps/v1",
-			Kind: "Car",
+			Kind:       "Car",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "initCar",
@@ -41,7 +41,6 @@ func init() {
 	strKey, strValue := parseEtcdDataCar(init)
 	_ = etcd.Put(strKey, strValue)
 }
-
 
 func getCar(name string) (*appsv1.Car, error) {
 	if car, ok := CarMap[name]; ok {
@@ -117,7 +116,7 @@ func createOrUpdateCar(o runtime.Object) (*appsv1.Car, error) {
 	new := &appsv1.Car{
 		TypeMeta: metav1.TypeMeta{
 			ApiVersion: "apps/v1",
-			Kind: "Car",
+			Kind:       "Car",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: car.Name,
@@ -131,7 +130,6 @@ func createOrUpdateCar(o runtime.Object) (*appsv1.Car, error) {
 			Status: "created",
 		},
 	}
-
 
 	// 存入map
 	CarMap[car.Name] = new
@@ -145,7 +143,6 @@ func createOrUpdateCar(o runtime.Object) (*appsv1.Car, error) {
 	return new, nil
 }
 
-
 func createCar(o runtime.Object) (*appsv1.Car, error) {
 	car := o.(*appsv1.Car)
 	// 如果查到就抛错
@@ -155,10 +152,10 @@ func createCar(o runtime.Object) (*appsv1.Car, error) {
 	new := &appsv1.Car{
 		TypeMeta: metav1.TypeMeta{
 			ApiVersion: "apps/v1",
-			Kind: "Car",
+			Kind:       "Car",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: car.Name,
+			Name:        car.Name,
 			Annotations: car.Annotations,
 		},
 		Spec: appsv1.CarSpec{
@@ -170,7 +167,6 @@ func createCar(o runtime.Object) (*appsv1.Car, error) {
 			Status: "created",
 		},
 	}
-
 
 	// 存入map
 	CarMap[car.Name] = new
@@ -191,7 +187,6 @@ func updateCar(o runtime.Object) (*appsv1.Car, error) {
 		old.Spec.Color = car.Spec.Color
 		return old, nil
 	}
-
 
 	// 如果查到就抛错
 	return nil, errors.New("this car is not found")
@@ -215,7 +210,7 @@ func patchCar(o runtime.Object) (*appsv1.Car, error) {
 		newCar := &appsv1.Car{
 			TypeMeta: metav1.TypeMeta{
 				ApiVersion: "apps/v1",
-				Kind: "Car",
+				Kind:       "Car",
 			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name: car.Name,
@@ -257,7 +252,7 @@ func patchCar(o runtime.Object) (*appsv1.Car, error) {
 	new := &appsv1.Car{
 		TypeMeta: metav1.TypeMeta{
 			ApiVersion: "apps/v1",
-			Kind: "Car",
+			Kind:       "Car",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: car.Name,
@@ -291,7 +286,6 @@ type CarCtl struct {
 func NewCarCtl() *CarCtl {
 	return &CarCtl{}
 }
-
 
 func (a *CarCtl) GetCar(c *gin.Context) {
 	name := c.Query("name")
@@ -371,9 +365,9 @@ func (a *CarCtl) ListCar(c *gin.Context) {
 }
 
 // 使用ws连接实现类似watch的实时传递
-func(a *CarCtl) WatchCar(c *gin.Context) {
+func (a *CarCtl) WatchCar(c *gin.Context) {
 	// 升级请求
-	client, err := Upgrader.Upgrade(c.Writer,c.Request,nil)  //升级
+	client, err := Upgrader.Upgrade(c.Writer, c.Request, nil) //升级
 	if err != nil {
 		klog.Errorf("ws connect error", err)
 		return
@@ -390,7 +384,7 @@ func(a *CarCtl) WatchCar(c *gin.Context) {
 
 // ws连接，用于watch操错
 type WsClientCar struct {
-	conn *websocket.Conn
+	conn      *websocket.Conn
 	writeChan chan *WatchCar // 写队列chan
 	closeChan chan struct{}  // 通知停止chan
 }
@@ -413,7 +407,7 @@ func (w *WsClientCar) WriteLoop() {
 			if err := w.conn.WriteMessage(websocket.TextMessage, r); err != nil {
 				klog.Errorf("发送错误")
 				w.conn.Close()
-				w.closeChan<- struct{}{}
+				w.closeChan <- struct{}{}
 				break
 
 			}
@@ -423,7 +417,7 @@ func (w *WsClientCar) WriteLoop() {
 }
 
 type WatchCar struct {
-	Car  *appsv1.Car
+	Car *appsv1.Car
 	// 区分事件类型 目前就是put delete
 	ObjectType string
 }
@@ -431,7 +425,7 @@ type WatchCar struct {
 // watchCar 从etcd中使用watch能力，当监听到有对象put或delete时，
 // watcher.ResultChan会接收到;并在内存中查找出真实对象，放入outputC中
 // 从outputC中放入 ws准备写入的writeChan中
-func (w *WsClientCar) watchCar(applePrefix string)  {
+func (w *WsClientCar) watchCar(applePrefix string) {
 
 	outputC := make(chan *WatchCar, 1000)
 
@@ -453,29 +447,27 @@ func (w *WsClientCar) watchCar(applePrefix string)  {
 							klog.Info(car.Name, car.Kind, car.Spec)
 							klog.Infof("放入output中")
 							res := &WatchCar{
-								Car: car,
+								Car:        car,
 								ObjectType: objectType,
 							}
-							outputC <-res
+							outputC <- res
 						}
 					} else if event.Type == clientv3.EventTypeDelete {
 						objectType = "delete"
 						klog.Info("delete: ", objectType)
 						res := &WatchCar{
-							Car: nil,
+							Car:        nil,
 							ObjectType: objectType,
 						}
-						outputC <-res
+						outputC <- res
 					}
-
 
 				}
 			}
-		case watchApple :=  <-outputC:
+		case watchApple := <-outputC:
 			klog.Infof("放入writeChan中")
-			w.writeChan <-watchApple
+			w.writeChan <- watchApple
 		}
 	}
 
 }
-

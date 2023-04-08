@@ -9,16 +9,14 @@ import (
 	appsv1 "practice_ctl/pkg/apis/apps/v1"
 	"practice_ctl/pkg/util/stores"
 	"practice_ctl/pkg/util/stores/rest"
-
 )
-
 
 func main() {
 	// 配置文件
 	config := &rest.Config{
 		Host:    fmt.Sprintf("http://localhost:8888"),
 		Timeout: time.Second,
-		Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2ODA5MjE0MzAsInVzZXJuYW1lIjoiYWRtaW4ifQ.P1KJOfyF7ue0sW-Bw2-CteyrH7ro1wUjPnleV-Gnw5s",
+		Token:   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2ODA5MjE0MzAsInVzZXJuYW1lIjoiYWRtaW4ifQ.P1KJOfyF7ue0sW-Bw2-CteyrH7ro1wUjPnleV-Gnw5s",
 	}
 	clientSet := stores.NewForConfig(config)
 
@@ -26,7 +24,7 @@ func main() {
 	a := &appsv1.Car{
 		TypeMeta: metav1.TypeMeta{
 			ApiVersion: "apps/v1",
-			Kind: "Car",
+			Kind:       "Car",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "car1",
@@ -42,7 +40,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("name:", c.Name,  "brand:", c.Spec.Brand, "color:", c.Spec.Color, "price:", c.Spec.Price)
+	fmt.Println("name:", c.Name, "brand:", c.Spec.Brand, "color:", c.Spec.Color, "price:", c.Spec.Price)
 
 	car1, err := clientSet.AppsV1().Car().Get("car1")
 	if err != nil {
@@ -50,11 +48,10 @@ func main() {
 	}
 	fmt.Println("get name: ", car1.Name)
 
-
 	aaa := &appsv1.Car{
 		TypeMeta: metav1.TypeMeta{
 			ApiVersion: "apps/v1",
-			Kind: "Car",
+			Kind:       "Car",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "car1",
@@ -86,4 +83,3 @@ func main() {
 	}
 
 }
-

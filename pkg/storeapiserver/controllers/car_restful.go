@@ -33,7 +33,6 @@ func (c *CarRestfulCtl) GetCar(request *restful.Request, response *restful.Respo
 
 }
 
-
 func (c *CarRestfulCtl) CreateCar(request *restful.Request, response *restful.Response) {
 	var r *appsv1.Car
 	if err := request.ReadEntity(&r); err != nil {
@@ -115,7 +114,6 @@ func (c *CarRestfulCtl) PatchCar(request *restful.Request, response *restful.Res
 
 }
 
-
 func (c *CarRestfulCtl) DeleteCar(request *restful.Request, response *restful.Response) {
 	name := request.QueryParameter("name")
 
@@ -130,7 +128,7 @@ func (c *CarRestfulCtl) DeleteCar(request *restful.Request, response *restful.Re
 		return
 	}
 	resp := struct {
-		Code int    	 `json:"code"`
+		Code int         `json:"code"`
 		Ok   interface{} `json:"ok"`
 	}{Code: http.StatusOK, Ok: "ok"}
 
@@ -153,7 +151,7 @@ func (c *CarRestfulCtl) ListCar(request *restful.Request, response *restful.Resp
 	}
 
 	resp := struct {
-		Code int    	 `json:"code"`
+		Code int         `json:"code"`
 		Item interface{} `json:"Item"`
 	}{Code: http.StatusOK, Item: res.Item}
 
@@ -162,14 +160,11 @@ func (c *CarRestfulCtl) ListCar(request *restful.Request, response *restful.Resp
 
 }
 
-
-
-
 // 使用ws连接实现类似watch的实时传递
-func(c *CarRestfulCtl) WatchCar(request *restful.Request, response *restful.Response) {
+func (c *CarRestfulCtl) WatchCar(request *restful.Request, response *restful.Response) {
 	// 升级请求
 
-	client, err := Upgrader.Upgrade(response, request.Request,nil)  //升级
+	client, err := Upgrader.Upgrade(response, request.Request, nil) //升级
 	if err != nil {
 		klog.Errorf("ws connect error", err)
 		return
@@ -183,4 +178,3 @@ func(c *CarRestfulCtl) WatchCar(request *restful.Request, response *restful.Resp
 
 	return
 }
-
