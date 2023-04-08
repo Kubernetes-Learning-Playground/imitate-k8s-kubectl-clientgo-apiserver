@@ -15,13 +15,13 @@ import (
 
 // 模仿 k8s
 type Request struct {
-	c       *RESTClient
-	req 	*http.Request
+	c   *RESTClient
+	req *http.Request
 
-	url     url.URL
-	ws      *websocket.Conn
+	url url.URL
+	ws  *websocket.Conn
 	// TODO: 这里需要修改
-	WChan   chan interface{}
+	WChan chan interface{}
 }
 
 type WsChan struct {
@@ -32,13 +32,11 @@ type WsChan struct {
 func NewRequest(c *RESTClient) *Request {
 	req, _ := http.NewRequest("", "", nil)
 	return &Request{
-		c: c,
-		req: req,
+		c:     c,
+		req:   req,
 		WChan: make(chan interface{}, 10),
-
 	} //默认是根
 }
-
 
 // Do 需要对底层库进行封装，不要暴露
 // 最终执行 http请求
@@ -127,7 +125,6 @@ func (r *Request) ListCar() *Request {
 
 func (r *Request) WatchCar() *Request {
 
-
 	klog.Info("ws url:", r.url.String())
 	// 创建ws连接
 	c, _, err := websocket.DefaultDialer.Dial(r.url.String(), nil)
@@ -158,8 +155,6 @@ func (r *Request) WatchCar() *Request {
 
 	return r
 }
-
-
 
 func (r *Request) GetAppleName(name string) *Request {
 
@@ -223,7 +218,6 @@ func (r *Request) WsPath(p string) *Request {
 
 func (r *Request) WatchApple() *Request {
 
-
 	klog.Info("ws url:", r.url.String())
 	// 创建ws连接
 	c, _, err := websocket.DefaultDialer.Dial(r.url.String(), nil)
@@ -258,6 +252,3 @@ func (r *Request) WatchApple() *Request {
 func (r *Request) ListApple() *Request {
 	return r
 }
-
-
-

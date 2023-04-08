@@ -22,11 +22,10 @@ var DeleteCmd = &cobra.Command{}
 func DeleteCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 	// 配置文件
 
-
 	cfg := &rest.Config{
 		Host:    fmt.Sprintf("http://" + configRes.Server),
 		Timeout: time.Second,
-		Token: configRes.Token,
+		Token:   configRes.Token,
 	}
 	clientSet := stores.NewForConfig(cfg)
 
@@ -78,13 +77,11 @@ func DeleteCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 				}
 			}
 
-
 			return nil
 		},
 	}
 
 	return DeleteCmd
-
 
 }
 
@@ -102,7 +99,7 @@ func DeleteApple(client *stores.ClientSet, path string, pathType string) error {
 
 	if pathType == "yaml" {
 		err = yaml.Unmarshal(bytes, a)
-	} else if pathType == "json"{
+	} else if pathType == "json" {
 		err = json.Unmarshal(bytes, a)
 	}
 
@@ -130,9 +127,8 @@ func DeleteApple(client *stores.ClientSet, path string, pathType string) error {
 
 }
 
-
 // DeleteCar 读取文件删除的方式
-func DeleteCar(client *stores.ClientSet, path string, pathType string) error{
+func DeleteCar(client *stores.ClientSet, path string, pathType string) error {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println("读取json文件失败", err)
@@ -142,7 +138,7 @@ func DeleteCar(client *stores.ClientSet, path string, pathType string) error{
 
 	if pathType == "yaml" {
 		err = yaml.Unmarshal(bytes, a)
-	} else if pathType == "json"{
+	} else if pathType == "json" {
 		err = json.Unmarshal(bytes, a)
 	}
 
@@ -174,7 +170,7 @@ func DeleteCarWithName(client *stores.ClientSet, name string) error {
 	res, err := client.AppsV1().Car().Get(name)
 	if res.Name == "" && err == nil {
 
-		fmt.Printf("car is notfound\n" )
+		fmt.Printf("car is notfound\n")
 		return nil
 	}
 
@@ -186,7 +182,6 @@ func DeleteCarWithName(client *stores.ClientSet, name string) error {
 	}
 	fmt.Printf("car is delete\n")
 
-
 	return nil
 }
 
@@ -195,7 +190,7 @@ func DeleteAppleWithName(client *stores.ClientSet, name string) error {
 	res, err := client.CoreV1().Apple().Get(name)
 	if res.Name == "" && err == nil {
 
-		fmt.Printf("apple is notfound\n" )
+		fmt.Printf("apple is notfound\n")
 		return nil
 	}
 
@@ -206,7 +201,6 @@ func DeleteAppleWithName(client *stores.ClientSet, name string) error {
 		return nil
 	}
 	fmt.Printf("apple is delete\n")
-
 
 	return nil
 }

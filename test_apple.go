@@ -14,28 +14,26 @@ import (
 	"time"
 )
 
-
 func main() {
 	// 配置文件
 	config := &rest.Config{
 		Host:    fmt.Sprintf("http://localhost:8888"),
 		Timeout: time.Second,
-		Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2ODA5MjE0MzAsInVzZXJuYW1lIjoiYWRtaW4ifQ.P1KJOfyF7ue0sW-Bw2-CteyrH7ro1wUjPnleV-Gnw5s",
+		Token:   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2ODA5MjE0MzAsInVzZXJuYW1lIjoiYWRtaW4ifQ.P1KJOfyF7ue0sW-Bw2-CteyrH7ro1wUjPnleV-Gnw5s",
 	}
 	clientSet := stores.NewForConfig(config)
-
 
 	// 创建操作
 	a := &v1.Apple{
 		TypeMeta: metav1.TypeMeta{
 			ApiVersion: "core/v1",
-			Kind: "Apple",
+			Kind:       "Apple",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "apple-test11",
 		},
 		Spec: v1.AppleSpec{
-			Size: "apple1",
+			Size:  "apple1",
 			Color: "apple1",
 			Place: "apple1",
 			Price: "apple1",
@@ -45,7 +43,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("name:", c.Name,  "size:", c.Spec.Size, "color:", c.Spec.Color, "place:", c.Spec.Place, "price:", c.Spec.Price)
+	fmt.Println("name:", c.Name, "size:", c.Spec.Size, "color:", c.Spec.Color, "place:", c.Spec.Place, "price:", c.Spec.Price)
 
 	apple1, err := clientSet.CoreV1().Apple().Get(c.Name)
 	if err != nil {
@@ -56,13 +54,13 @@ func main() {
 	aaa := &v1.Apple{
 		TypeMeta: metav1.TypeMeta{
 			ApiVersion: "core/v1",
-			Kind: "Apple",
+			Kind:       "Apple",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "apple-test11",
 		},
 		Spec: v1.AppleSpec{
-			Size: "apple1dddd",
+			Size:  "apple1dddd",
 			Color: "apple1ccc",
 			Place: "apple1ccc",
 			Price: "apple1ccc",
@@ -73,7 +71,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println("name: ", appleUpdate.Name,  "size: ", appleUpdate.Spec.Size, "color: ", appleUpdate.Spec.Color, "place: ", appleUpdate.Spec.Place, "price: ", appleUpdate.Spec.Price)
+	fmt.Println("name: ", appleUpdate.Name, "size: ", appleUpdate.Spec.Size, "color: ", appleUpdate.Spec.Color, "place: ", appleUpdate.Spec.Place, "price: ", appleUpdate.Spec.Price)
 
 	appleList, err := clientSet.CoreV1().Apple().List()
 	if err != nil {

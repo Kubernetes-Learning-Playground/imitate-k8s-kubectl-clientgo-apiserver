@@ -29,12 +29,9 @@ func (a *AppleRestfulCtl) GetApple(request *restful.Request, response *restful.R
 		return
 	}
 
-
-
 	response.WriteEntity(&res)
 
 }
-
 
 func (a *AppleRestfulCtl) CreateApple(request *restful.Request, response *restful.Response) {
 	var r *v1.Apple
@@ -57,7 +54,6 @@ func (a *AppleRestfulCtl) CreateApple(request *restful.Request, response *restfu
 		response.WriteEntity(&errResp)
 		return
 	}
-
 
 	response.WriteEntity(&res)
 
@@ -86,7 +82,6 @@ func (a *AppleRestfulCtl) UpdateApple(request *restful.Request, response *restfu
 		return
 	}
 
-
 	response.WriteEntity(&res)
 	return
 
@@ -106,7 +101,7 @@ func (a *AppleRestfulCtl) DeleteApple(request *restful.Request, response *restfu
 		return
 	}
 	resp := struct {
-		Code int    	 `json:"code"`
+		Code int         `json:"code"`
 		Ok   interface{} `json:"ok"`
 	}{Code: http.StatusOK, Ok: "ok"}
 
@@ -129,7 +124,7 @@ func (a *AppleRestfulCtl) ListApple(request *restful.Request, response *restful.
 	}
 
 	resp := struct {
-		Code int    	 `json:"code"`
+		Code int         `json:"code"`
 		Item interface{} `json:"Item"`
 	}{Code: http.StatusOK, Item: res.Item}
 
@@ -137,7 +132,6 @@ func (a *AppleRestfulCtl) ListApple(request *restful.Request, response *restful.
 	return
 
 }
-
 
 func (a *AppleRestfulCtl) PatchApple(request *restful.Request, response *restful.Response) {
 	var r *v1.Apple
@@ -166,12 +160,11 @@ func (a *AppleRestfulCtl) PatchApple(request *restful.Request, response *restful
 
 }
 
-
 // 使用ws连接实现类似watch的实时传递
-func(a *AppleRestfulCtl) WatchApple(request *restful.Request, response *restful.Response) {
+func (a *AppleRestfulCtl) WatchApple(request *restful.Request, response *restful.Response) {
 	// 升级请求
 
-	client, err := Upgrader.Upgrade(response, request.Request,nil)  //升级
+	client, err := Upgrader.Upgrade(response, request.Request, nil) //升级
 	if err != nil {
 		klog.Errorf("ws connect error", err)
 		return
@@ -185,4 +178,3 @@ func(a *AppleRestfulCtl) WatchApple(request *restful.Request, response *restful.
 
 	return
 }
-

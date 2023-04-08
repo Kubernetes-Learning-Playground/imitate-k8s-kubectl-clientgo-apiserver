@@ -85,7 +85,4 @@ func (v *apple) Watch() *rest.Request {
 	return res
 }
 
-
-
-
 var _ AppleInterface = &apple{}

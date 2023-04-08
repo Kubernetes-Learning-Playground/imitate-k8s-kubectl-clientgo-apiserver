@@ -6,6 +6,6 @@ type TypeMeta struct {
 }
 
 type ObjectMeta struct {
-	Name string 				  `json:"name" yaml:"name"`
+	Name        string            `json:"name" yaml:"name"`
 	Annotations map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
 }

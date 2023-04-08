@@ -49,4 +49,3 @@ func (aa AggregationApiServer) SearchHandler(handler http.Handler) http.Handler 
 //}
 
 //
-

@@ -8,16 +8,17 @@ import (
 )
 
 type CmdMetaData struct {
-	Use string
-	Short string
+	Use     string
+	Short   string
 	Example string
 }
 
 var storeCmdMetaData *CmdMetaData
+
 func init() {
 	storeCmdMetaData = &CmdMetaData{
-		Use: "storectl [flags]",
-		Short: "模仿kubectl",
+		Use:     "storectl [flags]",
+		Short:   "模仿kubectl",
 		Example: "storectl [flags]",
 	}
 
@@ -44,8 +45,7 @@ func RunCmd() {
 	describeCmd := DescribeCommand(configRes)
 	//加入子命令
 
-	deleteCmd.Flags().StringVar(&file,"file","","storectl delete cars --file xxxxx.yaml  ")
-
+	deleteCmd.Flags().StringVar(&file, "file", "", "storectl delete cars --file xxxxx.yaml  ")
 
 	cmd.AddCommand(versionCmd, listCmd, createCmd, applyCmd, deleteCmd, describeCmd)
 	err := cmd.Execute()

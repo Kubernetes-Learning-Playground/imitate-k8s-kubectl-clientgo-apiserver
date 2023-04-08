@@ -23,7 +23,7 @@ func init() {
 	init := &v1.Apple{
 		TypeMeta: metav1.TypeMeta{
 			ApiVersion: "core/v1",
-			Kind: "Apple",
+			Kind:       "Apple",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "initApple",
@@ -37,16 +37,13 @@ func init() {
 		Status: v1.AppleStatus{
 			Status: "created",
 		},
-
 	}
 
 	AppleMap[init.Name] = init
 	strKey, strValue := parseEtcdData(init)
 	_ = etcd.Put(strKey, strValue)
 
-
 }
-
 
 func getApple(name string) (*v1.Apple, error) {
 	if apple, ok := AppleMap[name]; ok {
@@ -120,13 +117,13 @@ func createOrUpdateApple(o runtime.Object) (*v1.Apple, error) {
 	new := &v1.Apple{
 		TypeMeta: metav1.TypeMeta{
 			ApiVersion: apple.ApiVersion,
-			Kind: apple.Kind,
+			Kind:       apple.Kind,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: apple.Name,
+			Name:        apple.Name,
 			Annotations: apple.Annotations,
 		},
-		Spec: apple.Spec,
+		Spec:   apple.Spec,
 		Status: a,
 	}
 
@@ -146,9 +143,9 @@ func createOrUpdateApple(o runtime.Object) (*v1.Apple, error) {
 
 // ws连接，用于watch操错
 type WsClientApple struct {
-	conn *websocket.Conn
+	conn      *websocket.Conn
 	writeChan chan *WatchApple // 写队列chan
-	closeChan chan struct{}  // 通知停止chan
+	closeChan chan struct{}    // 通知停止chan
 }
 
 func NewWsClientApple(conn *websocket.Conn, writeChan chan *WatchApple, closeChan chan struct{}) *WsClientApple {
@@ -169,7 +166,7 @@ func (w *WsClientApple) WriteLoop() {
 			if err := w.conn.WriteMessage(websocket.TextMessage, r); err != nil {
 				klog.Errorf("发送错误")
 				w.conn.Close()
-				w.closeChan<- struct{}{}
+				w.closeChan <- struct{}{}
 				break
 
 			}
@@ -179,16 +176,15 @@ func (w *WsClientApple) WriteLoop() {
 }
 
 type WatchApple struct {
-	Apple  *v1.Apple
+	Apple *v1.Apple
 	// 区分事件类型 目前就是put delete
 	ObjectType string
 }
 
-
 // watchApple 从etcd中使用watch能力，当监听到有对象put或delete时，
 // watcher.ResultChan会接收到;并在内存中查找出真实对象，放入outputC中
 // 从outputC中放入 ws准备写入的writeChan中
-func (w *WsClientApple) watchApple(applePrefix string)  {
+func (w *WsClientApple) watchApple(applePrefix string) {
 
 	outputC := make(chan *WatchApple, 1000)
 
@@ -210,26 +206,25 @@ func (w *WsClientApple) watchApple(applePrefix string)  {
 							klog.Info(apple.Name, apple.Kind, apple.Spec)
 							klog.Infof("放入output中")
 							res := &WatchApple{
-								Apple: apple,
+								Apple:      apple,
 								ObjectType: objectType,
 							}
-							outputC <-res
+							outputC <- res
 						}
 					} else if event.Type == clientv3.EventTypeDelete {
 						objectType = "delete"
 						res := &WatchApple{
-							Apple: nil,
+							Apple:      nil,
 							ObjectType: objectType,
 						}
-						outputC <-res
+						outputC <- res
 					}
 
-
 				}
-			} 
-		case watchApple :=  <-outputC:
+			}
+		case watchApple := <-outputC:
 			klog.Infof("放入writeChan中")
-			w.writeChan <-watchApple
+			w.writeChan <- watchApple
 		}
 	}
 
@@ -253,7 +248,7 @@ func patchApple(o runtime.Object) (*v1.Apple, error) {
 		newApple := &v1.Apple{
 			TypeMeta: metav1.TypeMeta{
 				ApiVersion: "core/v1",
-				Kind: "Apple",
+				Kind:       "Apple",
 			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name: apple.Name,
@@ -297,14 +292,14 @@ func patchApple(o runtime.Object) (*v1.Apple, error) {
 	new := &v1.Apple{
 		TypeMeta: metav1.TypeMeta{
 			ApiVersion: "core/v1",
-			Kind: "Apple",
+			Kind:       "Apple",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: apple.Name,
 		},
 		Spec: v1.AppleSpec{
 			Place: apple.Spec.Place,
-			Size: apple.Spec.Size,
+			Size:  apple.Spec.Size,
 			Price: apple.Spec.Price,
 			Color: apple.Spec.Color,
 		},
@@ -326,7 +321,6 @@ func patchApple(o runtime.Object) (*v1.Apple, error) {
 	// 如果查到就抛错
 	return nil, errors.New("this car is not found")
 }
-
 
 //func createApple(apple *v1.Apple) (*v1.Apple, error) {
 //	// 如果查到就抛错
@@ -374,7 +368,6 @@ type AppleCtl struct {
 func NewAppleCtl() *AppleCtl {
 	return &AppleCtl{}
 }
-
 
 func (a *AppleCtl) GetApple(c *gin.Context) {
 	name := c.Query("name")
@@ -453,7 +446,6 @@ func (a *AppleCtl) ListApple(c *gin.Context) {
 
 }
 
-
 func parseEtcdData(o runtime.Object) (string, string) {
 	apple := o.(*v1.Apple)
 	strKey := "/" + apple.Kind + "/" + apple.Name
@@ -463,9 +455,9 @@ func parseEtcdData(o runtime.Object) (string, string) {
 }
 
 // 使用ws连接实现类似watch的实时传递
-func(a *AppleCtl) WatchApple(c *gin.Context) {
+func (a *AppleCtl) WatchApple(c *gin.Context) {
 	// 升级请求
-	client, err := Upgrader.Upgrade(c.Writer,c.Request,nil)  //升级
+	client, err := Upgrader.Upgrade(c.Writer, c.Request, nil) //升级
 	if err != nil {
 		klog.Errorf("ws connect error", err)
 		return
@@ -479,4 +471,3 @@ func(a *AppleCtl) WatchApple(c *gin.Context) {
 
 	return
 }
-

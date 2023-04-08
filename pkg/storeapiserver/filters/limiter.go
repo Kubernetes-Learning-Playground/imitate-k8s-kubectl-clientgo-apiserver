@@ -6,7 +6,6 @@ import (
 	"practice_ctl/pkg/storeapiserver/filters/limit"
 )
 
-
 // IpLimiterMiddleware ip限流中间件
 func IpLimiterMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
@@ -58,5 +57,3 @@ func IpLimiterMiddleware(handler http.Handler) http.Handler {
 //
 //	}
 //}
-
-

@@ -10,5 +10,3 @@ type Config struct {
 	Timeout time.Duration
 	Token   string
 }
-
-

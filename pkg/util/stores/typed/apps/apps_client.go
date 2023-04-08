@@ -12,7 +12,6 @@ type AppsClient struct {
 	client *rest.RESTClient
 }
 
-
 func (c *AppsClient) Car() CarInterface {
 	return newCar(c.client)
 }
@@ -20,4 +19,3 @@ func (c *AppsClient) Car() CarInterface {
 func New(c *rest.RESTClient) *AppsClient {
 	return &AppsClient{client: c}
 }
-

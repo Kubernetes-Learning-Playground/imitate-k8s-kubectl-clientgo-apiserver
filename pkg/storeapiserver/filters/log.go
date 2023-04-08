@@ -13,8 +13,8 @@ func LoggerMiddleware(handler http.Handler) http.Handler {
 		handler.ServeHTTP(response, request)
 		endTime := time.Now()
 		latencyTime := endTime.Sub(startTime)
-		log.Printf("request time: %s", latencyTime)  // 执行时间
+		log.Printf("request time: %s", latencyTime)                           // 执行时间
 		log.Printf("method: %s, url: %s\n", request.Method, request.URL.Path) // 请求方法 请求url
-		log.Printf("requser host: %s", request.RemoteAddr)	// 请求host
+		log.Printf("requser host: %s", request.RemoteAddr)                    // 请求host
 	})
 }

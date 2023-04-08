@@ -12,7 +12,6 @@ type LimiterCache struct {
 
 var IpCache *LimiterCache
 
-
 func init() {
 	IpCache = &LimiterCache{}
 }
@@ -35,6 +34,3 @@ func CheckParam(values url.Values, params string) (string, bool) {
 
 	return key, isParam
 }
-
-
-

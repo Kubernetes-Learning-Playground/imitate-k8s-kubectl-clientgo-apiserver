@@ -12,11 +12,7 @@ import (
 	"time"
 )
 
-
-
-
 // list操作 命令行 ex: storectl list apples 或 storectl list cars
-
 
 var ListCmd = &cobra.Command{}
 
@@ -26,7 +22,7 @@ func ListCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 	cfg := &rest.Config{
 		Host:    fmt.Sprintf("http://" + configRes.Server),
 		Timeout: time.Second,
-		Token: configRes.Token,
+		Token:   configRes.Token,
 	}
 	clientSet := stores.NewForConfig(cfg)
 
@@ -53,13 +49,9 @@ func ListCommand(configRes *config.StoreCtlConfig) *cobra.Command {
 		},
 	}
 
-
-
 	return ListCmd
 
-
 }
-
 
 func ListApple(client *stores.ClientSet) error {
 
@@ -72,9 +64,7 @@ func ListApple(client *stores.ClientSet) error {
 	table := tablewriter.NewWriter(os.Stdout)
 	content := []string{"APPLE名称", "Price", "Place", "Color", "Size"}
 
-
 	table.SetHeader(content)
-
 
 	for _, apple := range appleList.Item {
 		appleRow := []string{apple.Name, apple.Spec.Price, apple.Spec.Place, apple.Spec.Color, apple.Spec.Size}
@@ -100,9 +90,7 @@ func ListCar(client *stores.ClientSet) error {
 	table := tablewriter.NewWriter(os.Stdout)
 	content := []string{"CAR名称", "Price", "Brand", "Color"}
 
-
 	table.SetHeader(content)
-
 
 	for _, car := range carList.Item {
 		carRow := []string{car.Name, car.Spec.Price, car.Spec.Brand, car.Spec.Color}
@@ -116,6 +104,4 @@ func ListCar(client *stores.ClientSet) error {
 
 	return nil
 
-
 }
-

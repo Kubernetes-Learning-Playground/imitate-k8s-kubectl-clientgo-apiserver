@@ -19,7 +19,6 @@ func newCar(c rest.Interface) CarInterface {
 	return &car{client: c}
 }
 
-
 type CarInterface interface {
 	Get(name string) (ver *appsv1.Car, err error)
 	List() (carList *appsv1.CarList, err error)
@@ -76,7 +75,6 @@ func (v *car) Update(car runtime.Object) (ver *appsv1.Car, err error) {
 	return
 }
 
-
 func (v *car) Watch() *rest.Request {
 
 	res := v.client.
@@ -86,6 +84,4 @@ func (v *car) Watch() *rest.Request {
 	return res
 }
 
-
 var _ CarInterface = &car{}
-

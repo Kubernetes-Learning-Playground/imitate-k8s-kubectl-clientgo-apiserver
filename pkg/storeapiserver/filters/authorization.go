@@ -6,7 +6,6 @@ import (
 	"practice_ctl/pkg/storeapiserver/auth"
 )
 
-
 func AuthorizeMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 		if request.URL.Path == "/login" {

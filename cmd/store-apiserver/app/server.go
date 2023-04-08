@@ -7,9 +7,9 @@ import (
 func NewAPIServerCommand() *cobra.Command {
 	s := NewServerRunOptions()
 	cmd := &cobra.Command{
-		Use: "store-apiserver",
+		Use:   "store-apiserver",
 		Short: "run http server",
-		Long: ``,
+		Long:  ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// set default options
 			completedOptions, err := Complete(s)
@@ -32,6 +32,3 @@ func NewAPIServerCommand() *cobra.Command {
 
 	return cmd
 }
-
-
-
