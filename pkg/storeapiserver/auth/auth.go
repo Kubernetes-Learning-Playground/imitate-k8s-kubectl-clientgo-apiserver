@@ -93,7 +93,7 @@ func generateJWT(username string) (string, error) {
 func ValidateToken(w http.ResponseWriter, r *http.Request) (err error) {
 	if r.Header["Token"] == nil {
 		fmt.Fprintf(w, "can not find token in header")
-		return errors.New("Token error")
+		return errors.New("Token error ")
 	}
 
 	token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
@@ -105,20 +105,20 @@ func ValidateToken(w http.ResponseWriter, r *http.Request) (err error) {
 
 	if token == nil {
 		fmt.Fprintf(w, "invalid token")
-		return errors.New("Token error")
+		return errors.New("Token error ")
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
 		fmt.Fprintf(w, "couldn't parse claims")
-		return errors.New("Token error")
+		return errors.New("Token error ")
 	}
 
 	// 过期时间token
 	exp := claims["exp"].(float64)
 	if int64(exp) < time.Now().Local().Unix() {
 		fmt.Fprintf(w, "token expired")
-		return errors.New("Token error")
+		return errors.New("Token error ")
 	}
 
 	// 把username放入header中

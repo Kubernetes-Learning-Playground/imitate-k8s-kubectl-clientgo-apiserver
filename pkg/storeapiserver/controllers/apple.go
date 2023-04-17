@@ -271,9 +271,14 @@ func patchApple(o runtime.Object) (*v1.Apple, error) {
 
 		// FIXME: 如果直接赋值，会导致之前的annotation消失
 		// 记住last-apply字段
-		ccc.Annotations = map[string]string{
-			"last-applied-configuration": string(helpers.ToJson(ccc)),
+		if len(ccc.Annotations) != 0 {
+			ccc.Annotations["last-applied-configuration"] = string(helpers.ToJson(ccc))
+		} else {
+			ccc.Annotations = map[string]string{
+				"last-applied-configuration": string(helpers.ToJson(ccc)),
+			}
 		}
+
 		AppleMap[old.Name] = &ccc
 
 		strKey, strValue := parseEtcdData(&ccc)
