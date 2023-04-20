@@ -15,10 +15,9 @@ func main() {
 	config := &rest.Config{
 		Host:    fmt.Sprintf("http://localhost:8888"),
 		Timeout: time.Second,
-		Token: "",
+		Token:   "",
 	}
 	clientSet := stores.NewForConfig(config)
-
 
 	// watch car对象
 	res1 := clientSet.AppsV1().Car().Watch()
@@ -35,4 +34,3 @@ func main() {
 
 	}
 }
-
