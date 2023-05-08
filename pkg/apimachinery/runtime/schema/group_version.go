@@ -8,12 +8,10 @@ type GroupVersionKind struct {
 	Kind    string
 }
 
-
 type GroupResource struct {
 	Group    string
 	Resource string
 }
-
 
 type GroupVersionResource struct {
 	Group    string

@@ -6,13 +6,10 @@ import (
 	"reflect"
 )
 
-
 type Scheme struct {
 	typeToGVK map[reflect.Type][]schema.GroupVersionKind
 	object    map[schema.GroupVersionKind]Object
 }
-
-
 
 func (s *Scheme) AddKnownTypes(gvk schema.GroupVersionKind, obj Object) {
 	t := reflect.TypeOf(obj)
@@ -41,7 +38,7 @@ func (s *Scheme) GetObjectKind(g schema.GroupVersionKind) schema.ObjectKind {
 func NewScheme() *Scheme {
 	return &Scheme{
 		typeToGVK: map[reflect.Type][]schema.GroupVersionKind{},
-		object:   map[schema.GroupVersionKind]Object{},
+		object:    map[schema.GroupVersionKind]Object{},
 	}
 }
 

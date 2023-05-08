@@ -11,7 +11,7 @@ import (
 
 /*
 	使用go-restful 适配
- */
+*/
 
 type APIServer struct {
 	ServerCount int
@@ -23,12 +23,9 @@ type APIServer struct {
 
 	// webservice container, where all webservice defines
 	container *restful.Container
-
-
 }
 
 type Config struct {
-
 }
 
 type ServerRunOptions struct {
@@ -36,12 +33,10 @@ type ServerRunOptions struct {
 	port string
 }
 
-
 func (s *ServerRunOptions) NewAPIServer(stopCh <-chan struct{}) (*APIServer, error) {
 	apiServer := &APIServer{
-		Config:     &s.Config,
+		Config: &s.Config,
 	}
-
 
 	server := &http.Server{
 		Addr: fmt.Sprintf(":%v", s.port),
@@ -51,7 +46,6 @@ func (s *ServerRunOptions) NewAPIServer(stopCh <-chan struct{}) (*APIServer, err
 
 	return apiServer, nil
 }
-
 
 func (s *APIServer) PrepareRun(stopCh <-chan struct{}) error {
 	s.container = restful.NewContainer()
@@ -89,7 +83,6 @@ func AddToContainer(container *restful.Container) error {
 	ws.Route(ws.GET("/hello").
 		To(func(request *restful.Request, response *restful.Response) {
 
-
 			response.WriteAsJson("hello world")
 		})).
 		Doc("hello world")
@@ -121,16 +114,12 @@ func AddKVServiceToContainer(container *restful.Container) error {
 	return nil
 }
 
-
 func (s *APIServer) buildHandlerChain(stopCh <-chan struct{}) {
 
 	handler := s.Server.Handler
 
 	s.Server.Handler = handler
 }
-
-
-
 
 func (s *APIServer) Run(ctx context.Context) (err error) {
 
@@ -169,9 +158,7 @@ func main() {
 		return
 	}
 
-
 	apiserver.Run(context.Background())
-
 
 }
 
@@ -184,5 +171,3 @@ func initController() {
 	appleCtl = controllers.NewAppleRestfulCtl()
 	carCtl = controllers.NewCarRestfulCtl()
 }
-
-

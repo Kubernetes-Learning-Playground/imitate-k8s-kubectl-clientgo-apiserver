@@ -5,18 +5,27 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"k8s.io/klog/v2"
+	"net/http"
+	"os"
 	"practice_ctl/pkg/scheduler"
+	"sigs.k8s.io/controller-runtime/pkg/healthz"
+	"time"
+	"log"
 )
 
 func NewSchedulerCommand() *cobra.Command {
-	s := NewOptions()
+	opts := NewOptions()
+
+
 	cmd := &cobra.Command{
 		Use:   "store-scheduler",
 		Short: "store-scheduler instance",
 		Long:  ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// 重要方法 runCommand
-			return runCommand(s)
+			return runCommand(opts)
 		},
 		Args: func(cmd *cobra.Command, args []string) error {
 			for _, arg := range args {
@@ -28,6 +37,15 @@ func NewSchedulerCommand() *cobra.Command {
 		},
 	}
 
+	flags := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
+	opts.AddFlags(flags)
+	flags.Parse(os.Args[1:])
+	flags.VisitAll(func(f *pflag.Flag) {
+		log.Printf("Flag: %v=%v\n", f.Name, f.Value.String())
+	})
+
+	fs := cmd.Flags()
+	fs.AddFlagSet(flags)
 	return cmd
 }
 
@@ -40,6 +58,18 @@ func runCommand(opts *Options) error {
 		stopCh := make(chan struct{})
 		<-stopCh
 		cancel()
+	}()
+
+	// 心跳检测健康机制
+	go func() {
+		handler := &healthz.Handler{
+			Checks: map[string]healthz.Checker{
+				"healthz": healthz.Ping,
+			},
+		}
+		if err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", opts.HealthPort), handler); err != nil {
+			klog.Fatalf("Failed to start healthz endpoint: %v", err)
+		}
 	}()
 
 	cc, sched, err := SetUp(ctx, opts)
@@ -57,13 +87,29 @@ func (s *Options) Validate() []error {
 	return errs
 }
 
+const (
+	DefaultNumWorker     = 3
+	DefaultQueueCapacity = 10
+)
+
 func (s *Options) Config() (*Config, error) {
 
 	c := &Config{}
+	c.healthPort = s.HealthPort
+	c.port = s.Port
+	c.numWorker = s.NumWorker
+	c.queueCapacity = s.QueueCapacity
+
+	if s.QueueCapacity == 0 {
+		s.QueueCapacity = DefaultQueueCapacity
+	}
+
+	if s.NumWorker == 0 {
+		s.NumWorker = DefaultNumWorker
+	}
 
 	return c, nil
 }
-
 
 func SetUp(ctx context.Context, opts *Options) (*CompletedConfig, *scheduler.Scheduler, error) {
 	// opt验证配置
@@ -88,6 +134,11 @@ func SetUp(ctx context.Context, opts *Options) (*CompletedConfig, *scheduler.Sch
 func Run(ctx context.Context, cc *CompletedConfig, sched *scheduler.Scheduler) error {
 
 	sched.Run(ctx)
+
+	defer func() {
+		sched.Stop()
+		time.Sleep(time.Second * 2)
+	}()
 
 	return fmt.Errorf("finished without leader elect")
 }

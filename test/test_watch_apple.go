@@ -10,13 +10,12 @@ import (
 	"time"
 )
 
-
 func main() {
 	//// 配置文件
 	config := &rest.Config{
 		Host:    fmt.Sprintf("http://localhost:8888"),
 		Timeout: time.Second,
-		Token: "",
+		Token:   "",
 	}
 	clientSet := stores.NewForConfig(config)
 
