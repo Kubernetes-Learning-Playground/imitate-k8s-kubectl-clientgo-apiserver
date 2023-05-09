@@ -18,6 +18,8 @@
 
 **TODO** 新增aggregator apiserver功能。(已支持)
 
+**TODO** 结合store-scheduler调度器，模拟创建资源后，调度到特定map中
+
 **TODO** 实现informer机制。(时间周期长，预计缓更)
 
 ### clientSet 风格客户端封装

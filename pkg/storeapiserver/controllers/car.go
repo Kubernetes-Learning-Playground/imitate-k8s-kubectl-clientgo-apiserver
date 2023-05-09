@@ -18,7 +18,7 @@ import (
 
 var CarMap = map[string]runtime.Object{}
 
-func init() {
+func InitCar() {
 	// 初始化一个对象
 	init := &appsv1.Car{
 		TypeMeta: metav1.TypeMeta{

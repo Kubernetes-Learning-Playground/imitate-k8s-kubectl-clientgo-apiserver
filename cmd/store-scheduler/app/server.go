@@ -18,7 +18,6 @@ import (
 func NewSchedulerCommand() *cobra.Command {
 	opts := NewOptions()
 
-
 	cmd := &cobra.Command{
 		Use:   "store-scheduler",
 		Short: "store-scheduler instance",

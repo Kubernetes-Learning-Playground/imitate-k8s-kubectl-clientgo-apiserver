@@ -18,7 +18,7 @@ import (
 
 var AppleMap = map[string]runtime.Object{}
 
-func init() {
+func InitApple() {
 	// 初始化一个对象
 	init := &v1.Apple{
 		TypeMeta: metav1.TypeMeta{
