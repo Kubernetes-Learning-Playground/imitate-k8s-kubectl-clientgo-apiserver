@@ -7,12 +7,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/klog/v2"
+	"log"
 	"net/http"
 	"os"
 	"practice_ctl/pkg/scheduler"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"time"
-	"log"
 )
 
 func NewSchedulerCommand() *cobra.Command {
