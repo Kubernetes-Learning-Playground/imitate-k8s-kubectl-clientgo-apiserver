@@ -3,8 +3,8 @@ package etcd
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"k8s.io/klog/v2"
 )
 
 var ctx = context.TODO()
@@ -59,5 +59,5 @@ func Watch(key string, opts ...clientv3.OpOption) *Watcher {
 
 func PrintJSON(v interface{}) {
 	b, _ := json.Marshal(v)
-	fmt.Printf("%s\n", b)
+	klog.Infof("do something in etcd: %s\n", b)
 }

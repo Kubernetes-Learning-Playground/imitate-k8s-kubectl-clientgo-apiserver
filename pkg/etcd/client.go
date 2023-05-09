@@ -3,28 +3,14 @@ package etcd
 import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"k8s.io/klog/v2"
-	"time"
 )
-
-// endpoints Endpoint列表
-var endpoints = []string{
-	"127.0.0.1:2379", // 需要写入配置文件
-}
-
-// config Etcd 配置
-var config = clientv3.Config{
-	Endpoints:            endpoints, // 可以从环境变量中拿取
-	DialTimeout:          time.Second * 30,
-	DialKeepAliveTimeout: time.Second * 30,
-	//Username:             "root",
-	//Password:             "111111",
-}
 
 // Cli Etcd客户端
 var Cli *clientv3.Client
 
-func init() {
-	Cli = GetEtcdClient(config)
+// InitOrDie 初始化如果不成功，直接panic
+func InitOrDie(etcdConfig clientv3.Config) {
+	Cli = GetEtcdClient(etcdConfig)
 }
 
 // GetEtcdClient 获取Etcd客户端

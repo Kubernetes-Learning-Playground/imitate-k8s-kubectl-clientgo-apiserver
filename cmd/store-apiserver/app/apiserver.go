@@ -2,14 +2,21 @@ package app
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"github.com/emicklei/go-restful/v3"
+	"github.com/spf13/pflag"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"k8s.io/klog/v2"
 	"net/http"
+	"os"
+	"practice_ctl/pkg/etcd"
 	"practice_ctl/pkg/storeapiserver/auth"
 	"practice_ctl/pkg/storeapiserver/controllers"
 	"practice_ctl/pkg/storeapiserver/filters"
 	"practice_ctl/pkg/util/helpers"
+	"strings"
+	"time"
 )
 
 type APIServer struct {
@@ -27,34 +34,62 @@ type APIServer struct {
 }
 
 type Config struct {
+	EtcdConfig clientv3.Config
 }
 
 type ServerRunOptions struct {
 	Config
-	Port         string
-	EtcdEndpoint string
+	Port                     int
+	EtcdEndpoint             string
+	EtcdDialTimeout          int
+	EtcdDialKeepAliveTimeout int
+}
+
+const (
+	DefaultPort                     = 8080
+	DefaultEtcdEndpoint             = "http://0.0.0.0:2379"
+	DefaultEtcdDialTimeout          = 30
+	DefaultEtcdDialKeepAliveTimeout = 30
+)
+
+func (s *ServerRunOptions) addKlogFlags(flags *pflag.FlagSet) {
+	klogFlags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	klog.InitFlags(klogFlags)
+
+	klogFlags.VisitAll(func(f *flag.Flag) {
+		f.Name = fmt.Sprintf("klog-%s", strings.ReplaceAll(f.Name, "_", "-"))
+	})
+	flags.AddGoFlagSet(klogFlags)
+}
+
+// AddFlags 加入命令行参数
+func (s *ServerRunOptions) AddFlags(flags *pflag.FlagSet) {
+	flags.StringVar(&s.EtcdEndpoint, "etcdEndpoint", DefaultEtcdEndpoint, "xxx")
+	flags.IntVar(&s.Port, "port", DefaultPort, "xxx")
+	flags.IntVar(&s.EtcdDialTimeout, "etcdDialTimeout", DefaultEtcdDialTimeout, "xxx")
+	flags.IntVar(&s.EtcdDialKeepAliveTimeout, "etcdDialKeepAliveTimeout", DefaultEtcdDialKeepAliveTimeout, "xxx")
+
+	s.addKlogFlags(flags)
 }
 
 func NewServerRunOptions() *ServerRunOptions {
 	return &ServerRunOptions{}
 }
 
-// completedServerRunOptions is a private wrapper that enforces a call of Complete() before Run can be invoked.
-type completedServerRunOptions struct {
+// CompletedServerRunOptions is a private wrapper that enforces a call of Complete() before Run can be invoked.
+type CompletedServerRunOptions struct {
 	*ServerRunOptions
 }
 
 // Complete 完成server options配置
-func Complete(s *ServerRunOptions) (completedServerRunOptions, error) {
-	var options completedServerRunOptions
-	if s.Port == "" {
-		s.Port = "8888"
-	}
-	if s.EtcdEndpoint == "" {
-		s.EtcdEndpoint = "127.0.0.1:2379"
-	}
+func Complete(s *ServerRunOptions) (CompletedServerRunOptions, error) {
+	var options CompletedServerRunOptions
 
+	// 将options 赋值给 configs
 	options.ServerRunOptions = s
+	options.EtcdConfig.Endpoints = []string{s.EtcdEndpoint}
+	options.EtcdConfig.DialTimeout = time.Duration(s.EtcdDialTimeout) * time.Second
+	options.EtcdConfig.DialKeepAliveTimeout = time.Duration(s.EtcdDialKeepAliveTimeout) * time.Second
 
 	return options, nil
 }
@@ -67,7 +102,7 @@ func (s *ServerRunOptions) Validate() []error {
 }
 
 // Run runs the specified APIServer.  This should never exit.
-func Run(completeOptions completedServerRunOptions, stopCh <-chan struct{}) error {
+func Run(completeOptions CompletedServerRunOptions, stopCh <-chan struct{}) error {
 
 	server, err := completeOptions.NewAPIServer(stopCh)
 	if err != nil {
@@ -110,6 +145,8 @@ func (s *APIServer) PrepareRun(stopCh <-chan struct{}) error {
 	// container作为http server的handler
 	s.Server.Handler = s.container
 
+	s.initEtcd()
+
 	// 注册服务
 	s.installAllAPIs()
 
@@ -123,6 +160,11 @@ func (s *APIServer) PrepareRun(stopCh <-chan struct{}) error {
 func (s *APIServer) installAllAPIs() {
 	helpers.Must(s.AddCommonApiToContainer(s.container))
 	helpers.Must(s.AddServiceV1ApiToContainer(s.container))
+}
+
+// initEtcd 初始化etcd
+func (s *APIServer) initEtcd() {
+	etcd.InitOrDie(s.Config.EtcdConfig)
 }
 
 func (s *APIServer) AddCommonApiToContainer(container *restful.Container) error {
@@ -249,4 +291,6 @@ var (
 func initController() {
 	appleCtl = controllers.NewAppleRestfulCtl()
 	carCtl = controllers.NewCarRestfulCtl()
+	controllers.InitApple()
+	controllers.InitCar()
 }

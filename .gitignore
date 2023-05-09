@@ -1,6 +1,6 @@
 
 
-# Binaries for programs and plugins
+# Binaries for programs and scheduler_plugins
 *.exe
 *.exe~
 *.dll
