@@ -209,7 +209,6 @@ func (r *Request) DeleteApple(name string) *Request {
 
 func (r *Request) WsPath(p string) *Request {
 	str := strings.Split(r.c.BasePath, "://")
-
 	u := url.URL{Scheme: "ws", Host: str[1], Path: p}
 	r.url = u
 
@@ -220,7 +219,10 @@ func (r *Request) WatchApple() *Request {
 
 	klog.Info("ws url:", r.url.String())
 	// 创建ws连接
-	c, _, err := websocket.DefaultDialer.Dial(r.url.String(), nil)
+	rh := http.Header{
+		"token": []string{r.c.Token},
+	}
+	c, _, err := websocket.DefaultDialer.Dial(r.url.String(), rh)
 	// 赋值
 	r.ws = c
 	if err != nil {

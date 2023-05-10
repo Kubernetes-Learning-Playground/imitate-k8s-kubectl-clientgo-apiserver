@@ -2,7 +2,7 @@ package filters
 
 import (
 	"net/http"
-	"practice_ctl/pkg/storeapiserver/auth"
+	"practice_ctl/pkg/apiserver/auth"
 )
 
 // AuthenticateMiddleware 认证中间件
@@ -20,6 +20,7 @@ func AuthenticateMiddleware(handler http.Handler) http.Handler {
 		} else {
 			response.WriteHeader(http.StatusBadRequest)
 			response.Write([]byte("the authenticate is failed"))
+			return
 		}
 
 	})

@@ -9,14 +9,14 @@ import (
 
 var ctx = context.TODO()
 
-// Put 设置值
-func Put(key, val string, opts ...clientv3.OpOption) error {
+// PutAndResourceVersion 设置值与返回版本号
+func PutAndResourceVersion(key, val string, opts ...clientv3.OpOption) (int, error) {
 	res, err := Cli.Put(ctx, key, val, opts...)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	PrintJSON(res)
-	return nil
+	resourceVersion := PrintJSON(res)
+	return resourceVersion, nil
 }
 
 // Get 获取值
@@ -57,7 +57,26 @@ func Watch(key string, opts ...clientv3.OpOption) *Watcher {
 	return watcher
 }
 
-func PrintJSON(v interface{}) {
+type ResourceVersion struct {
+	Header h `json:"header"`
+}
+
+type h struct {
+	//ClusterId string `json:"cluster_id"`
+	Revision int `json:"revision"`
+}
+
+// PrintJSON 打印log后返回etcd中的版本号
+func PrintJSON(v interface{}) int {
+
+	var rr ResourceVersion
 	b, _ := json.Marshal(v)
+	err := json.Unmarshal(b, &rr)
+	if err != nil {
+		klog.Errorf("unmarshal error: %s", err)
+		return 0
+	}
+
 	klog.Infof("do something in etcd: %s\n", b)
+	return rr.Header.Revision
 }

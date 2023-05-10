@@ -1,18 +1,23 @@
 package filters
 
 import (
-	"fmt"
+	"k8s.io/klog/v2"
 	"net/http"
-	"practice_ctl/pkg/storeapiserver/auth"
+	"practice_ctl/pkg/apiserver/auth"
 )
 
 func AuthorizeMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		// 登入操作，跳过授权中间件
 		if request.URL.Path == "/login" {
 			handler.ServeHTTP(response, request)
 			return
 		}
-
+		// watch操作，跳过授权中间件。FIXME 临时方案
+		if request.URL.Path == "/v1/apple/watch" || request.URL.Path == "/v1/car/watch" {
+			handler.ServeHTTP(response, request)
+			return
+		}
 		e := auth.Enforcer
 
 		////从DB加载策略
@@ -27,12 +32,13 @@ func AuthorizeMiddleware(handler http.Handler) http.Handler {
 
 		// 判断策略中是否存在
 		if ok := e.Enforce(sub, obj, act); ok {
-			fmt.Println("权限验证通过")
+			klog.Info("Permission verification passed")
 			handler.ServeHTTP(response, request) // 进行下一步操作
 		} else {
-			fmt.Println("权限验证没有通过")
+			klog.Error("Permission verification failed")
 			response.WriteHeader(http.StatusBadRequest)
 			response.Write([]byte("the Authorize is failed"))
+			return
 		}
 
 	})

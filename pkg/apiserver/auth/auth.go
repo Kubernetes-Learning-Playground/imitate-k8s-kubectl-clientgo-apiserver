@@ -7,6 +7,7 @@ import (
 	"github.com/casbin/casbin"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/emicklei/go-restful/v3"
+	"k8s.io/klog/v2"
 	"net/http"
 	"time"
 )
@@ -43,27 +44,31 @@ func LoginHandler(request *restful.Request, response *restful.Response) {
 
 		err := json.NewDecoder(request.Request.Body).Decode(&user)
 		if err != nil {
-			fmt.Fprintf(response, "invalid body")
+			klog.Error(response, "invalid body")
 			return
 		}
 
 		if userMap[user.Username] == "" || userMap[user.Username] != user.Password {
-			fmt.Fprintf(response, "can not authenticate this user")
+			klog.Error(response, "can not authenticate this user")
 			return
 		}
 
 		// 生成jwt token
 		token, err := generateJWT(user.Username)
 		if err != nil {
-			fmt.Fprintf(response, "error in generating token")
+			klog.Error(response, "error in generating token")
+			return
 		}
 		// 需要存入 策略
 		UserMap[user.Username] = user
 
 		if ok := Enforcer.AddPolicy(user.Username, user.ActionUrl, user.ActionMethod); !ok {
-			fmt.Println("Policy已经存在")
+			response.Write([]byte(token))
+			klog.Error("this policy already exists")
 		} else {
-			fmt.Fprintf(response, token)
+			response.Write([]byte(token))
+			klog.Info("login success!!")
+			klog.Info(response, token)
 		}
 
 	}
@@ -83,7 +88,7 @@ func generateJWT(username string) (string, error) {
 	tokenString, err := token.SignedString(sampleSecretKey)
 
 	if err != nil {
-		fmt.Errorf("Something Went Wrong: %s", err.Error())
+		klog.Errorf("Something Went Wrong: %s", err.Error())
 		return "", err
 	}
 	return tokenString, nil
@@ -98,7 +103,7 @@ func ValidateToken(w http.ResponseWriter, r *http.Request) (err error) {
 
 	token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("There was an error in parsing")
+			return nil, fmt.Errorf("there was an error in parsing")
 		}
 		return sampleSecretKey, nil
 	})

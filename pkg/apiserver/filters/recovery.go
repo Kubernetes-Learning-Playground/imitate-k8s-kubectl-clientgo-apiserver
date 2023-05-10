@@ -13,6 +13,7 @@ func RecoveryMiddleware(handler http.Handler) http.Handler {
 				klog.Error(err)
 				response.WriteHeader(http.StatusBadRequest)
 				response.Write([]byte("your request make server panic, please try other."))
+				return
 			}
 		}()
 		handler.ServeHTTP(response, request)

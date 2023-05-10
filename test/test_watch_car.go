@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"k8s.io/klog/v2"
-	"practice_ctl/pkg/storeapiserver/controllers"
+	"practice_ctl/pkg/apiserver/controllers"
 	"practice_ctl/pkg/util/stores"
 	"practice_ctl/pkg/util/stores/rest"
 	"time"
@@ -13,9 +13,9 @@ import (
 func main() {
 	//// 配置文件
 	config := &rest.Config{
-		Host:    fmt.Sprintf("http://localhost:8888"),
+		Host:    fmt.Sprintf("http://localhost:8080"),
 		Timeout: time.Second,
-		Token:   "",
+		Token:   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2ODM3MjM4NTksInVzZXJuYW1lIjoiYWRtaW4ifQ.nGrktCEZsdbyqWSsSK80af6ncihavBB41WLm5eqpmDc",
 	}
 	clientSet := stores.NewForConfig(config)
 

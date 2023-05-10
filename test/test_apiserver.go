@@ -6,7 +6,7 @@ import (
 	"github.com/emicklei/go-restful/v3"
 	"k8s.io/klog/v2"
 	"net/http"
-	"practice_ctl/pkg/storeapiserver/controllers"
+	"practice_ctl/pkg/apiserver/controllers"
 )
 
 /*

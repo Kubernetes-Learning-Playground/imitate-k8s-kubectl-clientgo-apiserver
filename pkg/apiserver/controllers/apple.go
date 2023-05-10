@@ -6,14 +6,18 @@ import (
 	"fmt"
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"k8s.io/klog/v2"
 	"practice_ctl/pkg/apimachinery/runtime"
 	v1 "practice_ctl/pkg/apis/core/v1"
 	metav1 "practice_ctl/pkg/apis/meta"
+	"practice_ctl/pkg/apis/meta/types"
 	"practice_ctl/pkg/etcd"
 	"practice_ctl/pkg/util/helpers"
+	"strconv"
+	"time"
 )
 
 var AppleMap = map[string]runtime.Object{}
@@ -41,7 +45,8 @@ func InitApple() {
 
 	AppleMap[init.Name] = init
 	strKey, strValue := parseEtcdData(init)
-	_ = etcd.Put(strKey, strValue)
+	ResourceVersion, _ := etcd.PutAndResourceVersion(strKey, strValue)
+	init.ResourceVersion = strconv.Itoa(ResourceVersion)
 
 }
 
@@ -94,6 +99,9 @@ func createOrUpdateApple(o runtime.Object) (*v1.Apple, error) {
 		klog.Infof("find the apple %v, and update it!", old.Name)
 		old.Name = apple.Name
 		old.Annotations = apple.Annotations
+		old.Labels = apple.Labels
+		old.UpdateTimestamp = time.Now()
+
 		old.Spec.Price = apple.Spec.Price
 		old.Spec.Place = apple.Spec.Place
 		old.Spec.Size = apple.Spec.Size
@@ -102,7 +110,8 @@ func createOrUpdateApple(o runtime.Object) (*v1.Apple, error) {
 
 		strKey, strValue := parseEtcdData(apple)
 		klog.Info("update key: ", strKey)
-		err := etcd.Put(strKey, strValue)
+		ResourceVersion, err := etcd.PutAndResourceVersion(strKey, strValue)
+		old.ResourceVersion = strconv.Itoa(ResourceVersion)
 		if err != nil {
 			klog.Errorf("update key error: ", strKey, err)
 			return old, err
@@ -120,8 +129,12 @@ func createOrUpdateApple(o runtime.Object) (*v1.Apple, error) {
 			Kind:       apple.Kind,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        apple.Name,
-			Annotations: apple.Annotations,
+			Name:            apple.Name,
+			Annotations:     apple.Annotations,
+			Labels:          apple.Labels,
+			UID:             types.UID(uuid.New().String()),
+			CreateTimestamp: time.Now(),
+			UpdateTimestamp: time.Now(),
 		},
 		Spec:   apple.Spec,
 		Status: a,
@@ -132,7 +145,8 @@ func createOrUpdateApple(o runtime.Object) (*v1.Apple, error) {
 
 	strKey, strValue := parseEtcdData(new)
 	klog.Info("create key: ", strKey)
-	err := etcd.Put(strKey, strValue)
+	ResourceVersion, err := etcd.PutAndResourceVersion(strKey, strValue)
+	new.ResourceVersion = strconv.Itoa(ResourceVersion)
 	if err != nil {
 		klog.Errorf("create key error: ", strKey, err)
 		return new, err
@@ -141,7 +155,7 @@ func createOrUpdateApple(o runtime.Object) (*v1.Apple, error) {
 	return new, nil
 }
 
-// ws连接，用于watch操错
+// WsClientApple ws连接，用于watch操作
 type WsClientApple struct {
 	conn      *websocket.Conn
 	writeChan chan *WatchApple // 写队列chan
@@ -283,7 +297,8 @@ func patchApple(o runtime.Object) (*v1.Apple, error) {
 
 		strKey, strValue := parseEtcdData(&ccc)
 		klog.Info("update key: ", strKey)
-		err = etcd.Put(strKey, strValue)
+		resourceVersion, err := etcd.PutAndResourceVersion(strKey, strValue)
+		old.ResourceVersion = strconv.Itoa(resourceVersion)
 		if err != nil {
 			klog.Errorf("patch key error: ", strKey, err)
 			return old, err
@@ -317,7 +332,8 @@ func patchApple(o runtime.Object) (*v1.Apple, error) {
 
 	strKey, strValue := parseEtcdDataCar(new)
 	klog.Info("create key: ", strKey)
-	err := etcd.Put(strKey, strValue)
+	resourceVersion, err := etcd.PutAndResourceVersion(strKey, strValue)
+	new.ResourceVersion = strconv.Itoa(resourceVersion)
 	if err != nil {
 		klog.Errorf("create key error: ", strKey, err)
 		return new, err
@@ -459,7 +475,7 @@ func parseEtcdData(o runtime.Object) (string, string) {
 	return strKey, strValue
 }
 
-// 使用ws连接实现类似watch的实时传递
+// WatchApple 使用ws连接实现类似watch的实时传递
 func (a *AppleCtl) WatchApple(c *gin.Context) {
 	// 升级请求
 	client, err := Upgrader.Upgrade(c.Writer, c.Request, nil) //升级

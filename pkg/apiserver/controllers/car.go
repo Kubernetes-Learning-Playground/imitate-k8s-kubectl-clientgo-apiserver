@@ -14,6 +14,7 @@ import (
 	metav1 "practice_ctl/pkg/apis/meta"
 	"practice_ctl/pkg/etcd"
 	"practice_ctl/pkg/util/helpers"
+	"strconv"
 )
 
 var CarMap = map[string]runtime.Object{}
@@ -39,7 +40,8 @@ func InitCar() {
 	}
 	CarMap[init.Name] = init
 	strKey, strValue := parseEtcdDataCar(init)
-	_ = etcd.Put(strKey, strValue)
+	resourceVersion, _ := etcd.PutAndResourceVersion(strKey, strValue)
+	init.ResourceVersion = strconv.Itoa(resourceVersion)
 }
 
 func getCar(name string) (*appsv1.Car, error) {
@@ -104,7 +106,8 @@ func createOrUpdateCar(o runtime.Object) (*appsv1.Car, error) {
 		old.Status.Status = "updated"
 		strKey, strValue := parseEtcdDataCar(car)
 		klog.Info("update key: ", strKey)
-		err := etcd.Put(strKey, strValue)
+		resourceVersion, err := etcd.PutAndResourceVersion(strKey, strValue)
+		old.ResourceVersion = strconv.Itoa(resourceVersion)
 		if err != nil {
 			klog.Errorf("update key error: ", strKey, err)
 			return old, err
@@ -135,7 +138,8 @@ func createOrUpdateCar(o runtime.Object) (*appsv1.Car, error) {
 	CarMap[car.Name] = new
 	strKey, strValue := parseEtcdDataCar(new)
 	klog.Info("create key: ", strKey)
-	err := etcd.Put(strKey, strValue)
+	resourceVersion, err := etcd.PutAndResourceVersion(strKey, strValue)
+	new.ResourceVersion = strconv.Itoa(resourceVersion)
 	if err != nil {
 		klog.Errorf("create key error: ", strKey, err)
 		return new, err
@@ -238,7 +242,8 @@ func patchCar(o runtime.Object) (*appsv1.Car, error) {
 
 		strKey, strValue := parseEtcdDataCar(&ccc)
 		klog.Info("update key: ", strKey)
-		err = etcd.Put(strKey, strValue)
+		resourceVersion, err := etcd.PutAndResourceVersion(strKey, strValue)
+		old.ResourceVersion = strconv.Itoa(resourceVersion)
 		if err != nil {
 			klog.Errorf("patch key error: ", strKey, err)
 			return old, err
@@ -270,7 +275,8 @@ func patchCar(o runtime.Object) (*appsv1.Car, error) {
 	CarMap[new.Name] = new
 	strKey, strValue := parseEtcdDataCar(new)
 	klog.Info("create key: ", strKey)
-	err := etcd.Put(strKey, strValue)
+	resourceVersion, err := etcd.PutAndResourceVersion(strKey, strValue)
+	new.ResourceVersion = strconv.Itoa(resourceVersion)
 	if err != nil {
 		klog.Errorf("create key error: ", strKey, err)
 		return new, err
