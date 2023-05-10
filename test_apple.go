@@ -17,9 +17,9 @@ import (
 func main() {
 	// 配置文件
 	config := &rest.Config{
-		Host:    fmt.Sprintf("http://localhost:8081"),
+		Host:    fmt.Sprintf("http://localhost:8080"),
 		Timeout: time.Second,
-		Token:   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2ODM2NDYzMTQsInVzZXJuYW1lIjoiYWRtaW4ifQ.a6OcjMHI7-Z8j2HzfrxP0PFnMNRgWkiL_BD8PgbXaVo",
+		Token:   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2ODM3Mjg3MzUsInVzZXJuYW1lIjoiYWRtaW4ifQ.if3msVqdo6V8ehDLG2SKBheDjNwmViCio3ZQ1__oy_U",
 	}
 	clientSet := stores.NewForConfig(config)
 

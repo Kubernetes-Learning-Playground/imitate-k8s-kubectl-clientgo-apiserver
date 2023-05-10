@@ -10,10 +10,10 @@ import (
 	"k8s.io/klog/v2"
 	"net/http"
 	"os"
+	"practice_ctl/pkg/apiserver/auth"
+	"practice_ctl/pkg/apiserver/controllers"
+	"practice_ctl/pkg/apiserver/filters"
 	"practice_ctl/pkg/etcd"
-	"practice_ctl/pkg/storeapiserver/auth"
-	"practice_ctl/pkg/storeapiserver/controllers"
-	"practice_ctl/pkg/storeapiserver/filters"
 	"practice_ctl/pkg/util/helpers"
 	"strings"
 	"time"
@@ -145,6 +145,7 @@ func (s *APIServer) PrepareRun(stopCh <-chan struct{}) error {
 	// container作为http server的handler
 	s.Server.Handler = s.container
 
+	// 初始化etcd
 	s.initEtcd()
 
 	// 注册服务
@@ -192,7 +193,7 @@ func (s *APIServer) AddCommonApiToContainer(container *restful.Container) error 
 	// 登入接口
 	ws.Route(ws.POST("/login").To(auth.LoginHandler))
 
-	// 注册接口
+	// 聚合api-server注册接口
 	ws.Route(ws.POST("/register").To(func(request *restful.Request, response *restful.Response) {
 		req := struct {
 			Path string `json:"path"`

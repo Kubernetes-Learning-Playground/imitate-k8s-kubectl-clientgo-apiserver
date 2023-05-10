@@ -3,7 +3,7 @@ package filters
 import (
 	"k8s.io/klog/v2"
 	"net/http"
-	"practice_ctl/pkg/storeapiserver/filters/limit"
+	"practice_ctl/pkg/apiserver/filters/limit"
 )
 
 // IpLimiterMiddleware ip限流中间件
@@ -27,6 +27,7 @@ func IpLimiterMiddleware(handler http.Handler) http.Handler {
 		} else {
 			response.WriteHeader(http.StatusBadRequest)
 			response.Write([]byte("this ip is too many request!!"))
+			return
 		}
 	})
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"practice_ctl/pkg/apimachinery/runtime/schema"
 	v1 "practice_ctl/pkg/apis/core/v1"
-	"practice_ctl/pkg/storeapiserver/controllers"
+	"practice_ctl/pkg/apiserver/controllers"
 )
 
 func main() {
